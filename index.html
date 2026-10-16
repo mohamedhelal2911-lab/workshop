@@ -2,17 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1E2227" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ورشة الأتوبيسات" />
 <meta name="format-detection" content="telephone=no" />
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icons/icon-192.png" />
-<link rel="apple-touch-icon" href="icons/icon-192.png" />
-<title>نظام إدارة ورشة الأتوبيسات — نسخة موحدة</title>
+<link id="app-manifest" rel="manifest" />
+<link id="app-icon" rel="icon" />
+<link id="app-touch-icon" rel="apple-touch-icon" />
+<title>نظام إدارة ورشة الأتوبيسات — نسخة موبايل أوف لاين (مع المزامنة)</title>
 <style>
   :root{
     --bg:#15181C; --panel:#1E2227; --panel2:#252A30; --border:#323942;
@@ -23,9 +23,11 @@
   html,body{height:100%;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,"Segoe UI",sans-serif;overscroll-behavior-y:none;}
   input,select,textarea,button{font-family:inherit;}
-  .row{display:flex;} .col{display:flex;flex-direction:column;}
+  .row{display:flex;}
+  .col{display:flex;flex-direction:column;}
   .gap1{gap:6px;} .gap2{gap:10px;} .gap3{gap:14px;} .gap4{gap:18px;}
-  .wrap{flex-wrap:wrap;} .center{align-items:center;} .between{justify-content:space-between;}
+  .wrap{flex-wrap:wrap;}
+  .center{align-items:center;} .between{justify-content:space-between;}
   .grow{flex:1;}
   .p3{padding:12px;} .p4{padding:16px;} .p5{padding:20px;}
   .pb-safe{padding-bottom:calc(86px + env(safe-area-inset-bottom)) !important;}
@@ -36,8 +38,9 @@
   .bold{font-weight:800;} .semibold{font-weight:700;}
   .sub{color:var(--sub);}
   .amber{color:var(--amber);} .green{color:var(--green);} .red{color:var(--red);}
-  .max-w{max-width:760px;margin:0 auto;} .max-w-lg{max-width:520px;margin:0 auto;}
-  .input{width:100%;padding:12px 13px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-size:15px;outline:none;min-height:46px;-webkit-appearance:none;}
+  .max-w{max-width:760px;margin:0 auto;}
+  .max-w-lg{max-width:520px;margin:0 auto;}
+  .input{width:100%;padding:12px 13px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-size:15px;outline:none;min-height:46px;}
   .input:focus{border-color:var(--amber);}
   label.field{display:flex;flex-direction:column;gap:5px;}
   label.field > span{font-size:12px;font-weight:800;color:var(--sub);}
@@ -77,16 +80,17 @@
   .bar-outer{background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
   .bar-inner{background:var(--amber);height:100%;}
   a{color:inherit;}
-  .bottom-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--panel);border-top:1px solid var(--border);z-index:30;padding:5px 3px calc(5px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(0,0,0,.25);}
-  .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:12px;background:transparent;border:none;color:var(--sub);font-size:10.5px;font-weight:800;position:relative;min-height:54px;font-family:inherit;}
+  /* ===================== شريط التنقل السفلي (نمط تطبيقات الأندرويد) ===================== */
+  .bottom-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--panel);border-top:1px solid var(--border);z-index:30;
+    padding:5px 3px calc(5px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(0,0,0,.25);}
+  .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    padding:6px 2px;border-radius:12px;background:transparent;border:none;color:var(--sub);font-size:10.5px;font-weight:800;
+    position:relative;min-height:54px;font-family:inherit;}
   .bottom-nav-item.active{color:var(--amber);}
   .bottom-nav-icon{font-size:20px;line-height:1;}
-  .bottom-nav-badge{position:absolute;top:2px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:800;border-radius:999px;padding:1px 5px;min-width:15px;line-height:1.4;}
-  .conn-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px;vertical-align:middle;}
-  .conn-online{background:var(--green);box-shadow:0 0 6px var(--green);}
-  .conn-offline{background:var(--red);box-shadow:0 0 6px var(--red);}
-  .conn-syncing{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:pulse 1s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+  .bottom-nav-badge{position:absolute;top:2px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;
+    font-size:9.5px;font-weight:800;border-radius:999px;padding:1px 5px;min-width:15px;line-height:1.4;}
+  /* مودال يفتح كورقة سفلية على شاشات الموبايل الضيقة */
   @media (max-width:520px){
     .modal-overlay{padding:0;align-items:flex-end;}
     .modal-box{max-width:100%;max-height:94vh;border-radius:18px 18px 0 0;}
@@ -97,74 +101,38 @@
     .panel,.panel2,.card,.card-btn{background:#fff !important;border-color:#ccc !important;color:#000 !important;}
   }
 </style>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyATpe71Xtbyei5n-CP8cYRHrHCJpJMUiI4",
-    authDomain: "work-shop-7c2a6.firebaseapp.com",
-    databaseURL: "https://work-shop-7c2a6-default-rtdb.firebaseio.com",
-    projectId: "work-shop-7c2a6",
-    storageBucket: "work-shop-7c2a6.firebasestorage.app",
-    messagingSenderId: "1081213210490",
-    appId: "1:1081213210490:web:dfeac94c4741d5c53850c3",
-    measurementId: "G-TCZVSKBZKS"
-  };
-
-  try{
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    window.firebaseReady = true;
-
-    window.cloudSave = function(data){
-      try{
-        set(ref(db, 'workshop_full_database_v12'), data).then(()=>{
-          window.cloudStatus = "online";
-          if(window.updateConnIndicator) window.updateConnIndicator();
-        }).catch(err=>{
-          console.error("Firebase save error", err);
-          window.cloudStatus = "offline";
-          if(window.updateConnIndicator) window.updateConnIndicator();
-        });
-      }catch(e){ console.error(e); }
-    };
-
-    onValue(ref(db, 'workshop_full_database_v12'), (snapshot) => {
-      const val = snapshot.val();
-      window.cloudStatus = "online";
-      if(window.updateConnIndicator) window.updateConnIndicator();
-      if(val && window.onCloudDataReceived){
-        window.onCloudDataReceived(val);
-      } else if(!val){
-        window.onCloudDataReceived({buses:[],supplyRequests:[],stockAdditions:[],settings:{managerEmail:""},meta:{deletedFaultIds:{}}}, true);
-      }
-    }, (err)=>{
-      console.error("Firebase read error", err);
-      window.cloudStatus = "offline";
-      if(window.updateConnIndicator) window.updateConnIndicator();
-    });
-  }catch(e){
-    console.error("Firebase init failed", e);
-    window.firebaseReady = false;
-    window.cloudStatus = "offline";
-  }
-</script>
 </head>
 <body>
-<div id="app"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#98A2AE;font-family:Tahoma;">⏳ جاري تحميل النظام...</div></div>
+<div id="app"></div>
 
 <script>
-/* =====================================================================
-   ورشة الأتوبيسات — نسخة موحدة (Firebase + IndexedDB)
-   ===================================================================== */
-
-/* Service Worker */
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-}
-
+/* ===================== إعداد التطبيق كواجهة موبايل (أيقونة + بيانات الإضافة للشاشة الرئيسية) ===================== */
+(function setupMobileAppShell(){
+  try{
+    const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <rect width="200" height="200" rx="42" fill="#F2A93B"/>
+      <text x="100" y="140" font-size="118" text-anchor="middle" font-family="Arial, sans-serif">🔧</text>
+    </svg>`;
+    const iconURL = "data:image/svg+xml," + encodeURIComponent(iconSVG);
+    const iconEl = document.getElementById("app-icon"); if(iconEl){ iconEl.href = iconURL; iconEl.type = "image/svg+xml"; }
+    const touchIconEl = document.getElementById("app-touch-icon"); if(touchIconEl) touchIconEl.href = iconURL;
+    const manifest = {
+      name: "نظام إدارة ورشة الأتوبيسات",
+      short_name: "ورشة الأتوبيسات",
+      start_url: ".", scope: ".", display: "standalone",
+      orientation: "portrait",
+      background_color: "#15181C", theme_color: "#1E2227",
+      dir: "rtl", lang: "ar",
+      icons: [
+        {src: iconURL, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable"},
+        {src: iconURL, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable"},
+      ],
+    };
+    const manifestBlob = new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"});
+    const manifestEl = document.getElementById("app-manifest");
+    if(manifestEl) manifestEl.href = URL.createObjectURL(manifestBlob);
+  }catch(e){ /* ليست ميزة أساسية — تجاهل أي فشل بصمت */ }
+})();
 /* ===================== ثوابت ===================== */
 const DEPARTMENTS = ["سمكرة","دهان","كهرباء","كاوتش","زجاج"];
 const ACCOUNTS = [
@@ -182,17 +150,31 @@ const ACCOUNTS = [
 ];
 const FAULT_STATUS = {PENDING_APPROVAL:"بانتظار اعتماد المدير", PENDING:"بانتظار البدء", IN_PROGRESS:"جاري العمل", DONE:"مكتمل"};
 const BUS_STATUS = {PENDING_APPROVAL:"بانتظار اعتماد مهام الإصلاح", INSPECT:"قيد الفحص", REPAIR:"قيد الإصلاح", READY:"جاهز للتسليم", DELIVERED:"تم التسليم"};
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 6; // أقصى عدد صور لكل مهمة إصلاح (قبل الإصلاح، وبعد الإصلاح كلٌّ على حدة)
 const DB_KEY = "workshop-offline-db-v1";
 const DEVICE_KEY = "workshop-device-name-v1";
 const SESSION_KEY = "workshop-login-session-v1";
-const SUPPLY_ITEMS = ["كاوتش","معجون استوك","دهان أبيض","دهان أزرق","دهان لبني","معجون فايبر"];
-const SUPPLY_STATUS = { PENDING:"بانتظار موافقة المدير", REJECTED:"مرفوض", APPROVED:"تمت الموافقة — بانتظار الصرف", DISPENSED:"تم الصرف" };
 
-/* ===================== أدوات ===================== */
+/* ===================== هوية الجهاز (لتمييز كل موبايل عند المزامنة) ===================== */
+function getDeviceName(){ try{ return localStorage.getItem(DEVICE_KEY) || ""; }catch(e){ return ""; } }
+function setDeviceName(v){ try{ localStorage.setItem(DEVICE_KEY, (v||"").trim()); }catch(e){} }
+
+/* ===================== طلبات صرف الخامات ===================== */
+const SUPPLY_ITEMS = ["كاوتش","معجون استوك","دهان أبيض","دهان أزرق","دهان لبني","معجون فايبر"];
+const SUPPLY_STATUS = {
+  PENDING:"بانتظار موافقة المدير",
+  REJECTED:"مرفوض",
+  APPROVED:"تمت الموافقة — بانتظار الصرف",
+  DISPENSED:"تم الصرف",
+};
+
+/* ===================== أدوات مساعدة ===================== */
 const uid = (p="id") => p+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,8);
 const nowISO = () => new Date().toISOString();
+/* يضبط updatedAt على أي سجل (أتوبيس / مهمة إصلاح / طلب خامة / مستند توريد) وقت أي تعديل عليه فعليًا،
+   عشان المزامنة تقدر تعرف مين آخر واحد عدّل كل سجل بمفرده دون التأثير على باقي السجلات */
 function touch(obj){ if(obj) obj.updatedAt = nowISO(); return obj; }
+// عرض كل التواريخ والأوقات بتوقيت مصر، حتى لو إعدادات توقيت الجهاز مختلفة
 const EGYPT_TZ = "Africa/Cairo";
 const fmtDateTime = (iso) => iso ? new Date(iso).toLocaleString("ar-EG",{dateStyle:"medium",timeStyle:"short",timeZone:EGYPT_TZ}) : "—";
 function localDateTimeInputValue(date=new Date()){
@@ -219,8 +201,6 @@ function restoreLoginSession(){
     route=tabs.some(t=>t.id===saved.route)?saved.route:tabs[0].id;
   }catch(e){}
 }
-function getDeviceName(){ try{ return localStorage.getItem(DEVICE_KEY) || ""; }catch(e){ return ""; } }
-function setDeviceName(v){ try{ localStorage.setItem(DEVICE_KEY, (v||"").trim()); }catch(e){} }
 const fmtMoney = (n) => (Number(n)||0).toLocaleString("ar-EG",{maximumFractionDigits:2}) + " ج.م";
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
@@ -275,15 +255,9 @@ function badge(status){
   const [c,bg] = statusColors(status);
   return `<span class="badge" style="color:${c};background:${bg}">${esc(status)}</span>`;
 }
-function supplyStatusColor(status){
-  if(status===SUPPLY_STATUS.PENDING) return ["#F2A93B","#3A2E17"];
-  if(status===SUPPLY_STATUS.REJECTED) return ["#EF5B5B","#3A1717"];
-  if(status===SUPPLY_STATUS.APPROVED) return ["#4C8BF5","#182A45"];
-  if(status===SUPPLY_STATUS.DISPENSED) return ["#3FCF8E","#123A2C"];
-  return ["#98A2AE","#2A2F35"];
-}
 
-/* ===================== قاعدة البيانات ===================== */
+/* ===================== تخزين محلي (هذا الجهاز فقط) — عبر IndexedDB لسعة تخزين أكبر بكثير من localStorage ===================== */
+const IDB_SUPPORTED = ('indexedDB' in window);
 function normalizeDB(db){
   db = db || {};
   if(!db.buses) db.buses = [];
@@ -294,16 +268,10 @@ function normalizeDB(db){
   if(!db.meta.deletedFaultIds) db.meta.deletedFaultIds = {};
   return db;
 }
-let DB = normalizeDB({});
-let lastCloudJson = "";
-let cloudReceivedOnce = false;
-
-/* IndexedDB helpers */
-const IDB_SUPPORTED = ('indexedDB' in window);
 function mainIdbOpen(){
   return new Promise((resolve,reject)=>{
     const req = indexedDB.open("workshop-main-db", 1);
-    req.onupgradeneeded = () => { if(!req.result.objectStoreNames.contains("kv")) req.result.createObjectStore("kv"); };
+    req.onupgradeneeded = () => { req.result.createObjectStore("kv"); };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -324,7 +292,9 @@ function idbPutDB(value){
     tx.onerror = () => reject(tx.error);
   }));
 }
-async function loadLocalDB(){
+/* تحميل البيانات: أولًا من IndexedDB، ولو أول مرة بيترحّل تلقائيًا أي بيانات قديمة كانت متخزنة على localStorage
+   (النظام القديم) عشان محدش يفقد بياناته السابقة، وبيفرّغ المساحة القديمة فورًا بعد الترحيل */
+async function loadDBAsync(){
   if(!IDB_SUPPORTED){
     try{ const raw = localStorage.getItem(DB_KEY); return normalizeDB(raw?JSON.parse(raw):{}); }
     catch(e){ return normalizeDB({}); }
@@ -332,7 +302,7 @@ async function loadLocalDB(){
   try{
     const existing = await idbGetDB();
     if(existing) return normalizeDB(existing);
-  }catch(e){ console.error("IndexedDB read failed", e); }
+  }catch(e){ console.error("تعذرت قراءة قاعدة البيانات", e); }
   try{
     const raw = localStorage.getItem(DB_KEY);
     if(raw){
@@ -341,63 +311,122 @@ async function loadLocalDB(){
       localStorage.removeItem(DB_KEY);
       return migrated;
     }
-  }catch(e){}
+  }catch(e){ console.error("تعذر ترحيل البيانات القديمة", e); }
   return normalizeDB({});
 }
-
-/* حفظ: Firebase + IndexedDB */
+/* طابور كتابة متسلسل حتى لا تتداخل عمليات الحفظ المتلاحقة مع بعضها */
 let dbWriteQueue = Promise.resolve();
+let dbWriteFailedWarned = false;
+function queueDBWrite(db){
+  dbWriteQueue = dbWriteQueue.then(()=>idbPutDB(db)).catch(err=>{
+    console.error("تعذر حفظ البيانات", err);
+    if(!dbWriteFailedWarned){
+      dbWriteFailedWarned = true;
+      alert("تعذر حفظ آخر تعديل! تأكد من وجود مساحة تخزين كافية على الجهاز، وصدّر نسخة احتياطية فورًا لتجنب فقدان أي بيانات.");
+    }
+  });
+}
 function saveDB(db){
-  DB = normalizeDB(db);
-  // حفظ محلي
-  if(IDB_SUPPORTED){ dbWriteQueue = dbWriteQueue.then(()=>idbPutDB(DB)).catch(e=>console.error("IDB save failed", e)); }
-  else { try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){} }
-  // حفظ سحابي
-  if(window.cloudSave){
-    lastCloudJson = JSON.stringify(DB);
-    window.cloudSave(DB);
+  if(!IDB_SUPPORTED){
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+    catch(e){ alert("تعذر حفظ البيانات محليًا. قد تكون الذاكرة المحلية للمتصفح ممتلئة (كثرة الصور). جرّب حذف صور أقل حجمًا أو تصدير نسخة احتياطية وتفريغ بعض الأتوبيسات القديمة."); return false; }
+    writeDBToFolder(db);
+    return true;
   }
+  queueDBWrite(db);
+  writeDBToFolder(db); // حفظ إضافي كملف على اللاب (لو المجلد متصل) — لا يوقف الحفظ الأساسي لو فشل
   return true;
 }
+let DB = null; // تُملأ فعليًا بعد bootApp() في نهاية الملف (تحميل غير متزامن من IndexedDB)
 
-/* استقبال بيانات من Firebase */
-window.onCloudDataReceived = function(remoteData, isFirstEmpty){
-  if(!remoteData) return;
-  const remoteJson = JSON.stringify(remoteData);
-  if(remoteJson === lastCloudJson) return; // تجاهل لو نفس البيانات
-  // لو أول مرة والمحلي فيه بيانات — نعمل merge يدوي بسيط (الأحدث يفوز)
-  if(!cloudReceivedOnce){
-    cloudReceivedOnce = true;
-    const hasRemote = remoteData.buses && remoteData.buses.length > 0;
-    const hasLocal = DB.buses && DB.buses.length > 0;
-    if(hasRemote && hasLocal){
-      const {merged} = mergeDB(DB, remoteData);
-      DB = merged;
-      lastCloudJson = JSON.stringify(DB);
-      if(window.cloudSave) window.cloudSave(DB);
-      render();
-      return;
-    }
-    if(!hasRemote && hasLocal){
-      // ارفع المحلي للسحابة
-      lastCloudJson = JSON.stringify(DB);
-      if(window.cloudSave) window.cloudSave(DB);
-      render();
-      return;
-    }
-  }
-  DB = normalizeDB(remoteData);
-  lastCloudJson = remoteJson;
-  if(IDB_SUPPORTED) idbPutDB(DB).catch(()=>{});
-  render();
-};
-/* ===================== حالة عامة ===================== */
+/* ===================== الحفظ المباشر كملفات على اللاب (File System Access API) ===================== */
+const FS_SUPPORTED = ('showDirectoryPicker' in window);
+let saveDirHandle = null;
+let saveDirStatus = "غير مفعّل";
+const FS_FILE_NAME = "بيانات-ورشة-الأتوبيسات.json";
+
+function fsOpenHandleDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open("workshop-fs-handle-db", 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore("handles"); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function fsStoreHandle(handle){
+  try{
+    const db = await fsOpenHandleDB();
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction("handles","readwrite");
+      tx.objectStore("handles").put(handle,"saveDir");
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+  }catch(e){}
+}
+async function fsLoadHandle(){
+  try{
+    const db = await fsOpenHandleDB();
+    return await new Promise((resolve,reject)=>{
+      const tx = db.transaction("handles","readonly");
+      const req = tx.objectStore("handles").get("saveDir");
+      req.onsuccess = () => resolve(req.result||null);
+      req.onerror = () => reject(req.error);
+    });
+  }catch(e){ return null; }
+}
+async function writeDBToFolder(db){
+  if(!saveDirHandle) return;
+  try{
+    const perm = await saveDirHandle.queryPermission({mode:"readwrite"});
+    if(perm!=="granted"){ saveDirStatus = "يحتاج إعادة ربط — اضغط لإعادة السماح"; return; }
+    const fileHandle = await saveDirHandle.getFileHandle(FS_FILE_NAME, {create:true});
+    const writable = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(db, null, 2));
+    await writable.close();
+    saveDirStatus = "متصل: " + saveDirHandle.name;
+  }catch(e){ console.error("تعذر الحفظ في المجلد", e); }
+}
+async function chooseSaveFolder(){
+  if(!FS_SUPPORTED){ alert("هذه الميزة متاحة على متصفح Chrome أو Edge على الكمبيوتر فقط"); return; }
+  try{
+    const handle = await window.showDirectoryPicker();
+    const perm = await handle.requestPermission({mode:"readwrite"});
+    if(perm!=="granted"){ alert("لم يتم منح صلاحية الكتابة على المجلد"); return; }
+    saveDirHandle = handle;
+    saveDirStatus = "متصل: " + handle.name;
+    await fsStoreHandle(handle);
+    await writeDBToFolder(DB);
+    renderReportsOnly();
+  }catch(e){ /* ألغى المستخدم اختيار المجلد */ }
+}
+async function relinkSaveFolder(){
+  if(!saveDirHandle) return;
+  try{
+    const perm = await saveDirHandle.requestPermission({mode:"readwrite"});
+    saveDirStatus = perm==="granted" ? ("متصل: "+saveDirHandle.name) : "يحتاج إعادة ربط — اضغط لإعادة السماح";
+    if(perm==="granted") await writeDBToFolder(DB);
+  }catch(e){ saveDirStatus = "يحتاج إعادة ربط — اضغط لإعادة السماح"; }
+  renderReportsOnly();
+}
+async function initSaveFolder(){
+  if(!FS_SUPPORTED) return;
+  const handle = await fsLoadHandle();
+  if(!handle) return;
+  saveDirHandle = handle;
+  try{
+    const perm = await handle.queryPermission({mode:"readwrite"});
+    saveDirStatus = perm==="granted" ? ("متصل: "+handle.name) : "يحتاج إعادة ربط — اضغط لإعادة السماح";
+  }catch(e){ saveDirStatus = "يحتاج إعادة ربط — اضغط لإعادة السماح"; }
+  if(route==="reports") renderReportsOnly();
+}
+
+/* ===================== الحالة العامة ===================== */
 let currentUser = null;
 let route = "login";
-let draftBus = null;
-let openBusId = null;
-let openTask = null;
-let workDraft = null;
+let draftBus = null;      // مسودة تسجيل أتوبيس جديد
+let openBusId = null;     // لعرض تفاصيل أتوبيس
+let openTask = null;      // {busId, faultId}
+let workDraft = null;     // مسودة تعديل مهمة إصلاح داخل المودال
 let adminQueueDept = DEPARTMENTS[0];
 let deptQueueFilter = "نشطة";
 let queueSearch = "";
@@ -409,37 +438,9 @@ let supplyDraft = null;
 let stockDraft = null;
 let loginError = "";
 let showLoginHint = false;
-let deliveryMsg = "";
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  render();
-});
-function triggerInstallApp(){
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; render(); });
-  }
-}
 
 function app(){ return document.getElementById("app"); }
-function render(){
-  try{
-    app().innerHTML = buildRoute();
-    updateConnIndicator();
-    if(route==="reports" || route==="sync") refreshStorageUsageOnly();
-  }catch(e){ console.error("render error", e); }
-}
-
-function updateConnIndicator(){
-  const el = document.getElementById("conn-dot");
-  if(!el) return;
-  const st = window.cloudStatus || "offline";
-  el.className = "conn-dot " + (st==="online" ? "conn-online" : st==="syncing" ? "conn-syncing" : "conn-offline");
-}
-window.updateConnIndicator = updateConnIndicator;
+function render(){ app().innerHTML = buildRoute(); if(route==="reports" || route==="sync") refreshStorageUsageOnly(); }
 
 /* ===================== تسجيل الدخول ===================== */
 function emptyFault(){
@@ -451,6 +452,7 @@ function resetDraftBus(){
   draftBus = {busNumber:"",driverName:"",driverCode:"",inspectorName:(currentUser && currentUser.inspector) ? currentUser.label : "",
     inspectionDate:localDateTimeInputValue(), faults:[emptyFault()], msg:""};
 }
+
 function doLogin(){
   const u = document.getElementById("li-user").value.trim();
   const p = document.getElementById("li-pass").value;
@@ -459,11 +461,10 @@ function doLogin(){
   currentUser = acc; loginError=""; route = tabsFor(acc.role)[0].id; saveLoginSession();
   if(route==="newbus") resetDraftBus();
   if(route==="custodian") resetStockDraft();
-  if(route==="supplyrequest") resetSupplyDraft();
   render();
 }
 function toggleHint(){ showLoginHint = !showLoginHint; render(); }
-function logout(){ if(!confirm("هل تريد الخروج؟")) return; currentUser=null; route="login"; saveLoginSession(); render(); }
+function logout(){ currentUser=null; route="login"; saveLoginSession(); render(); }
 
 function buildLogin(){
   return `
@@ -472,15 +473,14 @@ function buildLogin(){
       <div class="col center gap2" style="margin-bottom:26px;">
         <div class="logo" style="width:60px;height:60px;font-size:26px;">🔧</div>
         <div class="txt-lg bold" style="text-align:center;">نظام إدارة ورشة الأتوبيسات</div>
-        <div class="txt-sm sub" style="text-align:center;"><span id="conn-dot" class="conn-dot ${window.cloudStatus==='online'?'conn-online':'conn-offline'}"></span> متزامن سحابياً + محلياً</div>
+        <div class="txt-sm sub">نسخة أوف لاين — تعمل على هذا الجهاز فقط</div>
       </div>
-      ${deferredPrompt ? `<button onclick="triggerInstallApp()" class="btn btn-primary" style="width:100%;margin-bottom:12px;background:var(--green);color:#000;">📲 تثبيت التطبيق على الموبايل</button>` : ''}
-      <form class="panel rounded-lg p4 col gap3" onsubmit="event.preventDefault(); doLogin();">
-        <label class="field"><span>اسم المستخدم</span><input id="li-user" class="input" autocomplete="username" placeholder="مثال: inspection"/></label>
-        <label class="field"><span>كلمة المرور</span><input id="li-pass" type="password" class="input" autocomplete="current-password" placeholder="••••••"/></label>
+      <div class="panel rounded-lg p4 col gap3">
+        <label class="field"><span>اسم المستخدم</span><input id="li-user" class="input" placeholder="مثال: inspection" onkeydown="if(event.key==='Enter')doLogin()"/></label>
+        <label class="field"><span>كلمة المرور</span><input id="li-pass" type="password" class="input" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></label>
         ${loginError ? `<div class="txt-sm red bold">${esc(loginError)}</div>` : ""}
-        <button type="submit" class="btn btn-primary" style="width:100%;padding:11px;">دخول</button>
-      </form>
+        <button class="btn btn-primary" style="width:100%;padding:11px;" onclick="doLogin()">دخول</button>
+      </div>
       <button onclick="toggleHint()" class="btn" style="background:none;color:var(--sub);width:100%;text-decoration:underline;font-size:12px;margin-top:12px;">${showLoginHint?"إخفاء":"عرض"} بيانات الدخول التجريبية</button>
       ${showLoginHint ? `<div class="panel rounded p3 txt-xs col gap1" style="margin-top:8px;">
         ${ACCOUNTS.map(a=>`<div class="row between"><span class="sub">${esc(a.label)}</span><span>${a.username} / ${a.password}</span></div>`).join("")}
@@ -489,7 +489,7 @@ function buildLogin(){
   </div>`;
 }
 
-/* ===================== التبويبات ===================== */
+/* ===================== شريط علوي وتبويبات ===================== */
 const TAB_ICONS = {sync:"🔄", newbus:"🚌", approvals:"✅", buses:"📋", queue:"🧰", delivery:"🚚", supplies:"📦", reports:"📊", supplyrequest:"📨", custodian:"🏬"};
 function tabsFor(role){
   if(role==="admin") return [
@@ -525,23 +525,17 @@ function buildTopbar(){
       </button>`;
     }).join("")}
   </div>`;
-  const connSt = window.cloudStatus || "offline";
-  const connTxt = connSt==="online" ? "متصل سحابياً" : connSt==="syncing" ? "جاري المزامنة" : "غير متصل — يعمل محلياً";
-  const connCls = connSt==="online" ? "green" : connSt==="syncing" ? "amber" : "red";
   return `
   <div class="topbar no-print">
     <div class="topbar-main">
       <div class="row center gap2"><div class="logo">🔧</div>
-        <div><div class="txt-sm bold">ورشة الأتوبيسات</div><div class="txt-xs bold ${connCls}"><span id="conn-dot" class="conn-dot ${connSt==='online'?'conn-online':connSt==='syncing'?'conn-syncing':'conn-offline'}"></span>${connTxt} (${esc(currentUser.label)})</div></div></div>
-      <div class="row gap2">
-        ${deferredPrompt ? `<button class="btn btn-subtle" onclick="triggerInstallApp()" style="padding:4px 8px;font-size:11px;color:var(--amber);">📲 تثبيت</button>` : ''}
-        <button class="icon-btn" onclick="logout()" title="خروج">⏻</button>
-      </div>
+        <div><div class="txt-sm bold">ورشة الأتوبيسات</div><div class="txt-xs sub">${esc(currentUser.label)} (أوف لاين)</div></div></div>
+      <div class="row gap2"><button class="icon-btn" onclick="logout()" title="خروج">⏻</button></div>
     </div>
   </div>` + bottomNav;
 }
 
-/* ===================== Routing ===================== */
+/* ===================== توجيه المسارات ===================== */
 function buildRoute(){
   if(!currentUser) return buildLogin();
   let body = "";
@@ -578,7 +572,7 @@ function syncDraftBusFromDOM(){
     if(g("nb-f-dept-"+i)) f.department = g("nb-f-dept-"+i).value;
   });
 }
-function nbSetNow(){ const el=document.getElementById("nb-inspectionDate"); if(el) el.value = localDateTimeInputValue(); }
+function nbSetNow(){ document.getElementById("nb-inspectionDate").value = localDateTimeInputValue(); }
 function nbAddFault(){ syncDraftBusFromDOM(); draftBus.faults.push(emptyFault()); renderNewBusOnly(); }
 function nbRemoveFault(i){ syncDraftBusFromDOM(); if(draftBus.faults.length<=1) return; draftBus.faults.splice(i,1); renderNewBusOnly(); }
 async function nbAddPhotos(i, input){
@@ -589,7 +583,7 @@ async function nbAddPhotos(i, input){
   renderNewBusOnly();
 }
 function nbRemovePhoto(i, j){ syncDraftBusFromDOM(); draftBus.faults[i].photosBefore.splice(j,1); renderNewBusOnly(); }
-function renderNewBusOnly(){ const el = document.getElementById("newbus-root"); if(el) el.outerHTML = buildNewBus(); }
+function renderNewBusOnly(){ document.getElementById("newbus-root").outerHTML = buildNewBus(); }
 
 function submitNewBus(){
   syncDraftBusFromDOM();
@@ -611,13 +605,13 @@ function submitNewBus(){
   if(!saveDB(DB)) return;
   if(!autoApprove) notifyManagerNewBusPending(bus);
   resetDraftBus();
-  draftBus.msg = autoApprove ? "ok:تم تسجيل الأتوبيس بنجاح ✓" : "ok:تم إرسال الأتوبيس ومهام الإصلاح للمدير، بانتظار الاعتماد ✓";
+  draftBus.msg = autoApprove ? "ok:تم تسجيل الأتوبيس بنجاح ✓" : "ok:تم إرسال الأتوبيس ومهام الإصلاح لمدير الورشة، بانتظار الاعتماد قبل بدء العمل ✓";
   renderNewBusOnly();
 }
 function notifyManagerNewBusPending(bus){
   try{
     if("Notification" in window && Notification.permission==="granted"){
-      new Notification("أتوبيس جديد يحتاج اعتمادك", { body:`أتوبيس ${bus.busNumber} — ${bus.faults.length} مهمة بواسطة ${bus.faults[0].createdBy}` });
+      new Notification("أتوبيس/مهام إصلاح جديدة تحتاج اعتمادك", { body:`أتوبيس ${bus.busNumber} — ${bus.faults.length} مهمة إصلاح بواسطة ${bus.faults[0].createdBy}` });
     }
   }catch(e){}
 }
@@ -681,6 +675,7 @@ function buildMyRecentSubmissions(){
 
 /* ===================== قائمة الأتوبيسات ===================== */
 function buildBusesList(){
+  const q = reportsQ; // reuse variable name space isn't ideal; use separate
   return `
   <div class="max-w col gap3" id="buseslist-root">
     <input class="input" placeholder="بحث برقم الأتوبيس أو اسم السائق" oninput="blFilter(this.value)" id="bl-search"/>
@@ -700,9 +695,8 @@ function buildBusesListResults(q){
     </div>`;
   }).join("")}</div>`;
 }
-function blFilter(v){ const el=document.getElementById("bl-results"); if(el) el.innerHTML = buildBusesListResults(v); }
+function blFilter(v){ document.getElementById("bl-results").innerHTML = buildBusesListResults(v); }
 
-/* ===================== تفاصيل الأتوبيس ===================== */
 function buildBusDetailModal(busId){
   const bus = DB.buses.find(b=>b.id===busId);
   if(!bus) return "";
@@ -711,7 +705,7 @@ function buildBusDetailModal(busId){
     <div class="modal-box wide">
       <div class="modal-head"><div class="bold">أتوبيس ${esc(bus.busNumber)}</div>
         <div class="row gap2 center no-print">
-          <button class="btn btn-subtle" onclick="printDetailedReport([DB.buses.find(b=>b.id==='${bus.id}')])">🖨 PDF</button>
+          <button class="btn btn-subtle" onclick="printDetailedReport([DB.buses.find(b=>b.id==='${bus.id}')])">🖨 تقرير تفصيلي PDF</button>
           <button class="btn btn-subtle" onclick='downloadWordReport([DB.buses.find(b=>b.id==="${bus.id}")],"تقرير-أتوبيس-${esc(bus.busNumber)}.doc")'>📄 Word</button>
           <button class="icon-btn" onclick="openBusId=null;render();">✕</button>
         </div>
@@ -719,28 +713,28 @@ function buildBusDetailModal(busId){
       <div class="modal-body col gap3">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" class="txt-sm">
           <p><span class="sub">السائق: </span><span class="bold">${esc(bus.driverName)} (${esc(bus.driverCode||"—")})</span></p>
-          <p><span class="sub">المفتش: </span><span class="bold">${esc(bus.inspectorName)}</span></p>
-          <p><span class="sub">التفتيش: </span><span class="bold">${fmtDateTime(bus.inspectionDate)}</span></p>
+          <p><span class="sub">القائم بالتفتيش: </span><span class="bold">${esc(bus.inspectorName)}</span></p>
+          <p><span class="sub">تاريخ التفتيش: </span><span class="bold">${fmtDateTime(bus.inspectionDate)}</span></p>
           <p><span class="sub">الحالة: </span>${badge(computeBusStatus(bus))}</p>
         </div>
         <div class="col gap2">
           ${bus.faults.map((f,i)=>`
             <div class="panel2 rounded p3">
-              <div class="row between"><span class="txt-xs bold amber">مهمة ${i+1} — ${esc(f.department)}</span>${badge(f.status)}</div>
+              <div class="row between"><span class="txt-xs bold amber">مهمة إصلاح ${i+1} — ${esc(f.department)}</span>${badge(f.status)}</div>
               <p class="txt-sm" style="margin:6px 0;">${esc(f.description)}</p>
-              ${f.notes?`<p class="txt-xs sub" style="margin:0 0 6px;"><span class="bold" style="color:var(--text)">ملاحظات: </span>${esc(f.notes)}</p>`:""}
+              ${f.notes?`<p class="txt-xs sub" style="margin:0 0 6px;"><span class="bold" style="color:var(--text)">ملاحظات الصنايعي: </span>${esc(f.notes)}</p>`:""}
               <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;" class="txt-xs sub">
                 <span>استلام: ${fmtDateTime(f.receivedDate)}</span><span>بداية: ${fmtDateTime(f.startDate)}</span><span>انتهاء: ${fmtDateTime(f.endDate)}</span>
               </div>
               <div class="row wrap gap1" style="margin-top:6px;">
-                ${(f.photosBefore||[]).map(p=>`<img src="${p}" class="thumb-sm" style="border:2px solid var(--red);"/>`).join("")}
-                ${(f.photosAfter||[]).map(p=>`<img src="${p}" class="thumb-sm" style="border:2px solid var(--green);"/>`).join("")}
+                ${f.photosBefore.map(p=>`<img src="${p}" class="thumb-sm" style="border:2px solid var(--red);"/>`).join("")}
+                ${f.photosAfter.map(p=>`<img src="${p}" class="thumb-sm" style="border:2px solid var(--green);"/>`).join("")}
               </div>
               ${f.status===FAULT_STATUS.DONE?`<p class="txt-xs bold green" style="margin-top:6px;">إجمالي التكلفة: ${fmtMoney(faultTotal(f))}</p>`:""}
               ${currentUser.role==="admin" && f.status!==FAULT_STATUS.PENDING_APPROVAL?`
               <div class="row gap2" style="margin-top:6px;">
-                <button class="btn btn-subtle" onclick="openBusId=null; openTask={busId:'${bus.id}',faultId:'${f.id}'}; workDraft=null; render();">✏ تعديل</button>
-                <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${f.id}')">🗑 حذف</button>
+                <button class="btn btn-subtle" onclick="openBusId=null; openTask={busId:'${bus.id}',faultId:'${f.id}'}; workDraft=null; render();">✏ تعديل مهمة الإصلاح / الخامات / السعر</button>
+                <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${f.id}')">🗑 حذف المهمة</button>
               </div>`:""}
             </div>`).join("")}
         </div>
@@ -753,26 +747,26 @@ function buildBusDetailModal(busId){
   </div>`;
 }
 
-/* ===================== الاعتماد (admin) ===================== */
+/* ===================== اعتماد مهام الإصلاح — مدير الورشة ===================== */
 function buildApprovalsAdmin(){
   const busesWithPending = DB.buses.filter(b=>b.faults.some(f=>f.status===FAULT_STATUS.PENDING_APPROVAL))
     .sort((a,b)=>new Date(b.inspectionDate)-new Date(a.inspectionDate));
   return `
   <div id="approvals-root" class="max-w col gap4">
-    <p class="txt-xs sub">مهام الإصلاح المسجّلة بانتظار اعتمادك للبدء في العمل.</p>
-    ${busesWithPending.length===0?`<p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد مهام بانتظار الاعتماد 👍</p>`:""}
+    <p class="txt-xs sub">أي مهمة إصلاح تسجّلها الأقسام أو قسم التفتيش تظهر هنا أولًا، ولا يبدأ العمل عليها إلا بعد اعتمادك. تقدر كمان تعدّل الوصف أو القسم أو تضيف مهمة إصلاح جديدة للأتوبيس نفسه.</p>
+    ${busesWithPending.length===0?`<p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد مهام إصلاح بانتظار الاعتماد حاليًا 👍</p>`:""}
     ${busesWithPending.map(bus=>`
       <div class="panel rounded-lg p4 col gap3">
         <div class="row between center">
           <div><div class="txt-sm bold">أتوبيس ${esc(bus.busNumber)} — ${esc(bus.driverName)}</div>
-            <div class="txt-xs sub">بواسطة: ${esc(bus.inspectorName)} · ${fmtDateTime(bus.inspectionDate)}</div></div>
+            <div class="txt-xs sub">مسجّل بواسطة: ${esc(bus.inspectorName)} · ${fmtDateTime(bus.inspectionDate)}</div></div>
         </div>
         ${bus.faults.filter(f=>f.status===FAULT_STATUS.PENDING_APPROVAL).map(f=>buildFaultApprovalCard(bus,f)).join("")}
         <div class="panel2 rounded p3 col gap2">
-          <span class="txt-xs bold sub">+ إضافة مهمة أخرى لنفس الأتوبيس</span>
-          <textarea id="apn-desc-${bus.id}" class="input" rows="2" placeholder="وصف المهمة"></textarea>
+          <span class="txt-xs bold sub">+ إضافة مهمة إصلاح أخرى لنفس الأتوبيس (تُعتمد فورًا)</span>
+          <textarea id="apn-desc-${bus.id}" class="input" rows="2" placeholder="وصف مهمة الإصلاح الجديدة"></textarea>
           <select id="apn-dept-${bus.id}" class="input">${DEPARTMENTS.map(dp=>`<option value="${dp}">${dp}</option>`).join("")}</select>
-          <button class="btn btn-subtle" onclick="addApprovedFaultToBus('${bus.id}')">+ إضافة</button>
+          <button class="btn btn-subtle" onclick="addApprovedFaultToBus('${bus.id}')">+ إضافة مهمة الإصلاح</button>
         </div>
       </div>`).join("")}
   </div>`;
@@ -781,14 +775,14 @@ function buildFaultApprovalCard(bus, f){
   return `
   <div class="panel2 rounded p3 col gap2">
     <div class="row between center"><span class="txt-xs sub">مقترح من: ${esc(f.createdBy||"—")} · ${fmtDateTime(f.receivedDate)}</span>${badge(f.status)}</div>
-    <label class="field"><span>وصف المهمة</span><textarea id="ap-desc-${f.id}" class="input" rows="2">${esc(f.description)}</textarea></label>
-    <label class="field"><span>القسم</span>
+    <label class="field"><span>وصف مهمة الإصلاح</span><textarea id="ap-desc-${f.id}" class="input" rows="2">${esc(f.description)}</textarea></label>
+    <label class="field"><span>القسم المسؤول</span>
       <select id="ap-dept-${f.id}" class="input">${DEPARTMENTS.map(dp=>`<option value="${dp}" ${f.department===dp?"selected":""}>${dp}</option>`).join("")}</select>
     </label>
     ${f.photosBefore.length?`<div class="row wrap gap1">${f.photosBefore.map(p=>`<img src="${p}" class="thumb-sm"/>`).join("")}</div>`:""}
     <div class="row gap2">
-      <button class="btn btn-primary" onclick="approveFault('${bus.id}','${f.id}')">✔ اعتماد</button>
-      <button class="btn btn-danger" onclick="rejectFault('${bus.id}','${f.id}')">✘ رفض</button>
+      <button class="btn btn-primary" onclick="approveFault('${bus.id}','${f.id}')">✔ اعتماد مهمة الإصلاح</button>
+      <button class="btn btn-danger" onclick="rejectFault('${bus.id}','${f.id}')">✘ حذف / رفض</button>
     </div>
   </div>`;
 }
@@ -807,7 +801,7 @@ function approveFault(busId, faultId){
   renderApprovalsOnly();
 }
 function rejectFault(busId, faultId){
-  if(!confirm("هل تريد حذف/رفض هذه المهمة؟")) return;
+  if(!confirm("هل تريد حذف/رفض مهمة الإصلاح هذه؟ لا يمكن التراجع عن هذا الإجراء.")) return;
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
   bus.faults = bus.faults.filter(f=>f.id!==faultId);
   DB.meta.deletedFaultIds[faultId] = nowISO();
@@ -815,11 +809,12 @@ function rejectFault(busId, faultId){
   if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
+/* حذف مدير الورشة لمهمة إصلاح (مقايسة) بعد اعتمادها — يشمل كل الخامات وقطع الغيار والصور والتكلفة المرتبطة بها نهائيًا */
 function adminDeleteFault(busId, faultId){
   if(currentUser.role!=="admin") return;
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
   const f = bus.faults.find(x=>x.id===faultId); if(!f) return;
-  if(!confirm(`هل أنت متأكد من حذف هذه المهمة نهائيًا؟\n"${f.description}"`)) return;
+  if(!confirm(`هل أنت متأكد من حذف هذه المهمة نهائيًا؟\n"${f.description}"\nسيتم حذف كل ما يخصها (الخامات، قطع الغيار، الصور، والتكلفة) ولا يمكن التراجع عن هذا الإجراء.`)) return;
   bus.faults = bus.faults.filter(x=>x.id!==faultId);
   DB.meta.deletedFaultIds[faultId] = nowISO();
   touch(bus);
@@ -832,16 +827,19 @@ function addApprovedFaultToBus(busId){
   const descEl = document.getElementById("apn-desc-"+busId);
   const deptEl = document.getElementById("apn-dept-"+busId);
   const desc = descEl ? descEl.value.trim() : "";
-  if(!desc){ alert("يرجى كتابة وصف المهمة"); return; }
+  if(!desc){ alert("يرجى كتابة وصف مهمة الإصلاح قبل الإضافة"); return; }
   const f = emptyFault();
   f.description = desc; f.department = deptEl ? deptEl.value : DEPARTMENTS[0];
   f.receivedDate = nowISO(); f.status = FAULT_STATUS.PENDING;
   f.createdBy = currentUser.label; f.approvedBy = currentUser.label; f.approvedAt = nowISO();
-  touch(f); bus.faults.push(f); touch(bus);
+  touch(f);
+  bus.faults.push(f);
+  touch(bus);
   if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
-  /* ===================== طابور الأقسام ===================== */
+
+/* ===================== طابور عمل القسم ===================== */
 function buildQueue(dept){
   return `<div id="queue-root">${buildQueueInner(dept)}</div>`;
 }
@@ -870,10 +868,11 @@ function buildQueueResults(tasks){
   shown.sort((a,b)=> new Date(b.fault.receivedDate)-new Date(a.fault.receivedDate));
   if(shown.length===0) return `<div id="queue-results"><p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد مهام مطابقة</p></div>`;
   return `<div id="queue-results" class="col gap2">
-      ${shown.map(t=>`<div class="card-btn" onclick="openTask={busId:'${t.bus.id}',faultId:'${t.fault.id}'};workDraft=null;render();">
+      ${shown.map(t=>`<div class="card-btn" onclick="openTask={busId:'${t.bus.id}',faultId:'${t.fault.id}'};render();">
         <div><div class="txt-sm bold">أتوبيس ${esc(t.bus.busNumber)} — ${esc(t.bus.driverName)}</div>
         <div class="txt-xs sub" style="margin-top:2px;">${esc(t.fault.description)}</div>
-        <div class="txt-xs sub" style="margin-top:2px;">استلام: ${fmtDateTime(t.fault.receivedDate)}</div></div>${badge(t.fault.status)}
+        <div class="txt-xs sub" style="margin-top:2px;">استلام البلاغ: ${fmtDateTime(t.fault.receivedDate)}</div></div>
+        ${badge(t.fault.status)}
       </div>`).join("")}
     </div>`;
 }
@@ -887,7 +886,7 @@ function buildQueueInner(dept){
   </div>`;
 }
 
-/* ===================== كتالوج الخامات ===================== */
+/* قائمة أسماء الخامات الديناميكية: تشمل القائمة الافتراضية + أي اسم أضافه أمين العهدة أو أي قسم من قبل */
 function materialsCatalog(){
   const set = new Set(SUPPLY_ITEMS);
   DB.stockAdditions.forEach(s=>(s.items||[]).forEach(it=>{ if(it.name) set.add(it.name); }));
@@ -896,7 +895,8 @@ function materialsCatalog(){
   return [...set].sort((a,b)=>a.localeCompare("ar"));
 }
 
-/* ===================== مودال مهمة الإصلاح ===================== */
+/* ===================== مودال تنفيذ مهمة الإصلاح ===================== */
+function openWorkModal(busId, faultId){ openTask = {busId, faultId}; render(); }
 function syncWorkDraftFromDOM(){
   if(!workDraft) return;
   const g = id => document.getElementById(id);
@@ -1001,23 +1001,23 @@ function buildFaultWorkModal(busId, faultId){
         <div class="panel2 rounded p3">
           <p class="txt-sm bold">${esc(fault.description)}</p>
           <p class="txt-xs sub">السائق: ${esc(bus.driverName)} · القسم: ${esc(fault.department)}</p>
-          <div class="row wrap gap1" style="margin-top:6px;">${(fault.photosBefore||[]).map(p=>`<img src="${p}" class="thumb-sm"/>`).join("")}</div>
+          <div class="row wrap gap1" style="margin-top:6px;">${fault.photosBefore.map(p=>`<img src="${p}" class="thumb-sm"/>`).join("")}</div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;" class="txt-xs sub">
           <span>استلام: ${fmtDateTime(fault.receivedDate)}</span><span>بداية: ${fmtDateTime(fault.startDate)}</span><span>انتهاء: ${fmtDateTime(fault.endDate)}</span>
         </div>
-        ${fault.status===FAULT_STATUS.PENDING_APPROVAL?`<p class="txt-sm sub" style="text-align:center;padding:14px 0;">⏳ بانتظار اعتماد مدير الورشة.</p>`:""}
+        ${fault.status===FAULT_STATUS.PENDING_APPROVAL?`<p class="txt-sm sub" style="text-align:center;padding:14px 0;">⏳ مهمة الإصلاح هذه بانتظار اعتماد مدير الورشة، ولا يمكن بدء العمل عليها قبل ذلك.</p>`:""}
         ${fault.status===FAULT_STATUS.PENDING?`<button class="btn btn-primary" onclick="wStart()">▶ بدء العمل الآن</button>`:""}
         ${(fault.status===FAULT_STATUS.IN_PROGRESS||fault.status===FAULT_STATUS.DONE)?`
           ${currentUser.role==="admin"?`
           <div class="panel2 rounded p3 col gap2">
-            <span class="txt-xs bold amber">تعديل المدير</span>
-            <label class="field"><span>وصف المهمة</span><textarea id="wf-desc" class="input" rows="2" oninput="syncWorkDraftFromDOM()">${esc(workDraft.description)}</textarea></label>
-            <label class="field"><span>القسم</span><select id="wf-dept" class="input" onchange="syncWorkDraftFromDOM()">${DEPARTMENTS.map(dp=>`<option value="${dp}" ${workDraft.department===dp?"selected":""}>${dp}</option>`).join("")}</select></label>
-            <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${fault.id}')">🗑 حذف نهائي</button>
+            <span class="txt-xs bold amber">تعديل مدير الورشة</span>
+            <label class="field"><span>وصف مهمة الإصلاح</span><textarea id="wf-desc" class="input" rows="2" oninput="syncWorkDraftFromDOM()">${esc(workDraft.description)}</textarea></label>
+            <label class="field"><span>القسم المسؤول</span><select id="wf-dept" class="input" onchange="syncWorkDraftFromDOM()">${DEPARTMENTS.map(dp=>`<option value="${dp}" ${workDraft.department===dp?"selected":""}>${dp}</option>`).join("")}</select></label>
+            <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${fault.id}')">🗑 حذف هذه المهمة نهائيًا</button>
           </div>`:""}
           <div class="col gap2">
-            <div class="row between"><span class="txt-xs bold sub">قطع الغيار</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wpAddRow()">+ إضافة</button></div>
+            <div class="row between"><span class="txt-xs bold sub">قطع الغيار المستخدمة</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wpAddRow()">+ إضافة</button></div>
             ${workDraft.spareParts.map((r,i)=>`<div class="row gap2 center">
               <input id="wp-name-${i}" class="input" placeholder="اسم القطعة" value="${esc(r.name)}"/>
               <input id="wp-price-${i}" class="input" placeholder="السعر" type="number" value="${esc(r.price)}"/>
@@ -1026,34 +1026,34 @@ function buildFaultWorkModal(busId, faultId){
             </div>`).join("")}
           </div>
           <div class="col gap2">
-            <div class="row between"><span class="txt-xs bold sub">الخامات</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wmAddRow()">+ إضافة</button></div>
+            <div class="row between"><span class="txt-xs bold sub">الخامات المستخدمة</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wmAddRow()">+ إضافة</button></div>
             ${(()=>{ const catalog = materialsCatalog(); return workDraft.materials.map((r,i)=>{
               const opts = (r.name && !catalog.includes(r.name) && r.name!=="أخرى") ? [r.name, ...catalog] : catalog;
               return `<div class="panel2 rounded p2 col gap2">
                 <div class="row gap2 center">
                   <select id="wm-name-${i}" class="input" style="flex:1.4;" onchange="wmNameChanged(${i}, this.value)">
                     ${opts.map(n=>`<option value="${esc(n)}" ${r.name===n?"selected":""}>${esc(n)}</option>`).join("")}
-                    <option value="أخرى" ${r.name==="أخرى"?"selected":""}>أخرى</option>
+                    <option value="أخرى" ${r.name==="أخرى"?"selected":""}>أخرى (خامة جديدة)</option>
                   </select>
                   <input id="wm-price-${i}" class="input" placeholder="السعر" type="number" style="flex:0.8;" value="${esc(r.price)}"/>
                   <input id="wm-qty-${i}" class="input" placeholder="الكمية" type="number" style="flex:0.8;" value="${esc(r.qty)}"/>
                   <button class="btn" style="background:none;color:var(--red);padding:0;" onclick="wmRemoveRow(${i})">🗑</button>
                 </div>
-                ${r.name==="أخرى"?`<input id="wm-custom-${i}" class="input" placeholder="اسم الخامة" value="${esc(r.customName||"")}"/>`:""}
+                ${r.name==="أخرى"?`<input id="wm-custom-${i}" class="input" placeholder="اكتب اسم الخامة الجديدة" value="${esc(r.customName||"")}"/>`:""}
                 <div class="row gap2 center wrap">
                   ${materialRowRequestBadge(r)}
-                  ${canRequestMaterialRow(r)?`<button class="btn btn-subtle" style="padding:5px 10px;font-size:11px;" onclick="requestMaterialFromStore(${i})">📨 طلب من المخزن</button>`:""}
+                  ${canRequestMaterialRow(r)?`<button class="btn btn-subtle" style="padding:5px 10px;font-size:11px;" onclick="requestMaterialFromStore(${i})">📨 طلب هذه الكمية من المخزن (يحتاج اعتماد المدير)</button>`:""}
                 </div>
               </div>`;
             }).join(""); })()}
           </div>
           <label class="field"><span>سعر المصنعية</span><input id="wf-labor" type="number" class="input" value="${esc(workDraft.laborCost)}"/></label>
-          <label class="field"><span>ملاحظات الصنايعي</span><textarea id="wf-notes" class="input" rows="2">${esc(workDraft.notes||"")}</textarea></label>
+          <label class="field"><span>ملاحظات الصنايعي</span><textarea id="wf-notes" class="input" rows="2" placeholder="أي ملاحظات عن طبيعة الإصلاح أو حالة الأتوبيس...">${esc(workDraft.notes||"")}</textarea></label>
           <div class="col gap2">
-            <div class="row between"><span class="txt-xs bold sub">فنيون</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wtAddRow()">+ إضافة</button></div>
+            <div class="row between"><span class="txt-xs bold sub">فنيون إضافيون</span><button class="btn" style="background:none;color:var(--amber);padding:0;" onclick="wtAddRow()">+ إضافة</button></div>
             ${workDraft.technicians.map((r,i)=>`<div class="row gap2 center">
               <input id="wt-name-${i}" class="input" placeholder="اسم الفني" value="${esc(r.name)}"/>
-              <input id="wt-role-${i}" class="input" placeholder="التخصص" value="${esc(r.role)}"/>
+              <input id="wt-role-${i}" class="input" placeholder="التخصص (مثال: دوكو)" value="${esc(r.role)}"/>
               <button class="btn" style="background:none;color:var(--red);padding:0;" onclick="wtRemoveRow(${i})">🗑</button>
             </div>`).join("")}
           </div>
@@ -1061,15 +1061,15 @@ function buildFaultWorkModal(busId, faultId){
             <div class="row wrap gap2">
               ${workDraft.photosAfter.map((p,j)=>`<div class="thumb-wrap"><img src="${p}" class="thumb"/><div class="thumb-x" onclick="wRemoveAfterPhoto(${j})">✕</div></div>`).join("")}
               ${workDraft.photosAfter.length<MAX_PHOTOS?`
-                <label class="photo-add">📷<input type="file" accept="image/*" capture="environment" style="display:none" onchange="wAddAfterPhotos(this)"/></label>
-                <label class="photo-add">🖼<input type="file" accept="image/*" multiple style="display:none" onchange="wAddAfterPhotos(this)"/></label>`:""}
+                <label class="photo-add" title="التقاط صورة بالكاميرا">📷<input type="file" accept="image/*" capture="environment" style="display:none" onchange="wAddAfterPhotos(this)"/></label>
+                <label class="photo-add" title="اختيار من المعرض">🖼<input type="file" accept="image/*" multiple style="display:none" onchange="wAddAfterPhotos(this)"/></label>`:""}
             </div>
           </div>
           <p class="txt-sm bold amber" style="text-align:left;">الإجمالي: ${fmtMoney(faultTotal({...workDraft}))}</p>
           <div class="row gap2">
             <button class="btn btn-subtle" onclick="wSaveProgress(false)">حفظ التقدم</button>
             ${canFinish?`<button class="btn btn-primary" onclick="wSaveProgress(true)">✔ إنهاء العمل</button>`:""}
-            ${fault.status===FAULT_STATUS.DONE?`<span class="row center gap1 txt-sm bold green">✔ مكتمل</span>`:""}
+            ${fault.status===FAULT_STATUS.DONE?`<span class="row center gap1 txt-sm bold green">✔ تم إنجاز العمل</span>`:""}
           </div>
         `:""}
       </div>
@@ -1077,21 +1077,22 @@ function buildFaultWorkModal(busId, faultId){
   </div>`;
 }
 
-/* ===================== التسليم ===================== */
+/* ===================== بيان تسليم الأتوبيس ===================== */
+let deliveryMsg = "";
 function buildDelivery(){
   const ready = DB.buses.filter(b=>computeBusStatus(b)===BUS_STATUS.READY);
   return `<div id="delivery-root" class="max-w-lg col gap3">
-    ${ready.length===0?`<p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد أتوبيسات جاهزة للتسليم حالياً</p>`:`
+    ${ready.length===0?`<p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد أتوبيسات جاهزة للتسليم حالياً (يجب إنهاء كل الأعمال أولاً)</p>`:`
     <div class="panel rounded-lg p4 col gap3">
-      <label class="field"><span>اختر الأتوبيس الجاهز</span>
+      <label class="field"><span>اختر الأتوبيس الجاهز للتسليم</span>
         <select id="dv-bus" class="input" onchange="dvChanged()">
           <option value="">— اختر —</option>
           ${ready.map(b=>`<option value="${b.id}">أتوبيس ${esc(b.busNumber)} — ${esc(b.driverName)}</option>`).join("")}
         </select>
       </label>
       <div id="dv-info"></div>
-      <label class="field"><span>اسم المسؤول المعتمِد</span><input id="dv-approver" class="input"/></label>
-      <label class="row center gap2 txt-sm"><input type="checkbox" id="dv-confirm"/> أؤكد اعتماد التسليم</label>
+      <label class="field"><span>اسم المسؤول المعتمِد للتسليم</span><input id="dv-approver" class="input"/></label>
+      <label class="row center gap2 txt-sm"><input type="checkbox" id="dv-confirm"/> أؤكد اعتماد تسليم الأتوبيس للسائق بتاريخ اليوم</label>
       ${deliveryMsg?`<p class="txt-sm bold" style="text-align:center;color:${deliveryMsg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(deliveryMsg.split(":").slice(1).join(":"))}</p>`:""}
       <button class="btn btn-primary" onclick="submitDelivery()">🚚 اعتماد التسليم</button>
     </div>`}
@@ -1100,23 +1101,22 @@ function buildDelivery(){
 function dvChanged(){
   const id = document.getElementById("dv-bus").value;
   const bus = DB.buses.find(b=>b.id===id);
-  const el = document.getElementById("dv-info");
-  if(el) el.innerHTML = bus ? `<div class="panel2 rounded p3 txt-xs sub">الأقسام المنتهية: <span class="bold" style="color:var(--text)">${busDepts(bus).join("، ")}</span></div>` : "";
+  document.getElementById("dv-info").innerHTML = bus ? `<div class="panel2 rounded p3 txt-xs sub">الأقسام التي أنهت العمل: <span class="bold" style="color:var(--text)">${busDepts(bus).join("، ")}</span></div>` : "";
 }
 function submitDelivery(){
   const id = document.getElementById("dv-bus").value;
   const approver = document.getElementById("dv-approver").value.trim();
   const confirmed = document.getElementById("dv-confirm").checked;
   const bus = DB.buses.find(b=>b.id===id);
-  if(!bus || !approver || !confirmed){ deliveryMsg="err:يرجى إكمال البيانات والتأكيد"; render(); return; }
+  if(!bus || !approver || !confirmed){ deliveryMsg="err:يرجى اختيار الأتوبيس واسم المعتمد وتأكيد الاعتماد"; render(); return; }
   bus.delivery = {driverName:bus.driverName, busNumber:bus.busNumber, deliveryDate: nowISO(), departmentName: busDepts(bus).join("، "), approvedBy:approver, signed:true};
   touch(bus);
   if(!saveDB(DB)) return;
-  deliveryMsg = "ok:تم اعتماد التسليم ✓";
+  deliveryMsg = "ok:تم اعتماد تسليم الأتوبيس ✓";
   render();
 }
 
-/* ===================== طلبات الخامات ===================== */
+/* ===================== طلبات صرف الخامات ===================== */
 function emptySupplyRequest(){
   return {id:uid("supply"), itemName:SUPPLY_ITEMS[0], customItem:"", qty:1, unit:"",
     department:currentUser.role, requestedByLabel:currentUser.label, busId:"", busNumber:"",
@@ -1156,17 +1156,17 @@ function submitSupplyRequest(){
   if(!saveDB(DB)) return;
   notifyManagerNewRequest(req);
   resetSupplyDraft();
-  supplyDraft.msg = "ok:تم إرسال الطلب ✓";
+  supplyDraft.msg = "ok:تم إرسال الطلب لمدير الورشة، بانتظار الموافقة ✓";
   renderSupplyReqOnly();
 }
-function notifyManagerNewRequest(req){
-  try{
-    if("Notification" in window && Notification.permission==="granted"){
-      new Notification("طلب خامات جديد", { body: `${req.itemName} × ${req.qty} — ${req.requestedByLabel}` });
-    }
-  }catch(e){}
-}
 
+function supplyStatusColor(status){
+  if(status===SUPPLY_STATUS.PENDING) return ["#F2A93B","#3A2E17"];
+  if(status===SUPPLY_STATUS.REJECTED) return ["#EF5B5B","#3A1717"];
+  if(status===SUPPLY_STATUS.APPROVED) return ["#4C8BF5","#182A45"];
+  if(status===SUPPLY_STATUS.DISPENSED) return ["#3FCF8E","#123A2C"];
+  return ["#98A2AE","#2A2F35"];
+}
 function buildSupplyRequestCard(r, context){
   const [c,bg] = supplyStatusColor(r.status);
   return `<div class="panel2 rounded p3 col gap1">
@@ -1174,12 +1174,12 @@ function buildSupplyRequestCard(r, context){
       <span class="txt-sm bold">${esc(r.itemName)} — ${esc(r.qty)} ${esc(r.unit||"")}</span>
       <span class="badge" style="color:${c};background:${bg}">${esc(r.status)}</span>
     </div>
-    <div class="txt-xs sub">القسم: ${esc(r.department)} · ${esc(r.requestedByLabel)} · ${fmtDateTime(r.createdAt)}</div>
-    ${r.busNumber?`<div class="txt-xs sub">أتوبيس: ${esc(r.busNumber)}</div>`:""}
+    <div class="txt-xs sub">القسم: ${esc(r.department)} · بواسطة: ${esc(r.requestedByLabel)} · ${fmtDateTime(r.createdAt)}</div>
+    ${r.busNumber?`<div class="txt-xs sub">مرتبط بأتوبيس: ${esc(r.busNumber)}</div>`:""}
     ${r.notes?`<div class="txt-xs">ملاحظات: ${esc(r.notes)}</div>`:""}
-    ${r.status===SUPPLY_STATUS.REJECTED?`<div class="txt-xs red">الرفض: ${esc(r.rejectReason||"—")}</div>`:""}
+    ${r.status===SUPPLY_STATUS.REJECTED?`<div class="txt-xs red">سبب الرفض: ${esc(r.rejectReason||"—")} (بواسطة ${esc(r.decidedBy)})</div>`:""}
     ${(r.status===SUPPLY_STATUS.APPROVED||r.status===SUPPLY_STATUS.DISPENSED)?`<div class="txt-xs sub">وافق: ${esc(r.decidedBy)} — ${fmtDateTime(r.decidedAt)}</div>`:""}
-    ${r.status===SUPPLY_STATUS.DISPENSED?`<div class="txt-xs green">صُرف لـ: ${esc(r.recipientName)} بواسطة ${esc(r.dispensedBy)}</div>`:""}
+    ${r.status===SUPPLY_STATUS.DISPENSED?`<div class="txt-xs green">تم الصرف لـ: ${esc(r.recipientName)} بواسطة ${esc(r.dispensedBy)} — ${fmtDateTime(r.dispensedAt)}</div>`:""}
     ${context==="admin" && r.status===SUPPLY_STATUS.PENDING?`
       <div class="row gap2" style="margin-top:6px;">
         <button class="btn btn-primary" onclick="approveSupplyRequest('${r.id}')">✔ موافقة</button>
@@ -1187,14 +1187,15 @@ function buildSupplyRequestCard(r, context){
       </div>`:""}
     ${context==="custodian" && r.status===SUPPLY_STATUS.APPROVED?`
       <div class="row gap2 center" style="margin-top:6px;">
-        <input id="cust-recipient-${r.id}" class="input" placeholder="اسم المستلم"/>
+        <input id="cust-recipient-${r.id}" class="input" placeholder="اسم مستلم الخامة"/>
         <button class="btn btn-primary" onclick="dispenseSupplyRequest('${r.id}')">📦 تسجيل الصرف</button>
       </div>`:""}
     ${context==="requester" && r.status===SUPPLY_STATUS.PENDING?`
-      <button class="btn btn-subtle" style="margin-top:6px;" onclick="emailManagerAboutRequest('${r.id}')">📧 إرسال بالإيميل للمدير</button>`:""}
+      <button class="btn btn-subtle" style="margin-top:6px;" onclick="emailManagerAboutRequest('${r.id}')">📧 إرسال نسخة بالإيميل لمدير الورشة</button>`:""}
   </div>`;
 }
 
+/* شاشة طلب خامة — للأقسام */
 function buildSupplyRequestForm(){
   if(!supplyDraft) resetSupplyDraft();
   const d = supplyDraft;
@@ -1209,32 +1210,33 @@ function buildSupplyRequestForm(){
       <label class="field"><span>الخامة</span>
         <select id="sr-item" class="input" onchange="srItemChanged(this.value)">
           ${materialsCatalog().map(it=>`<option value="${esc(it)}" ${d.itemName===it?"selected":""}>${esc(it)}</option>`).join("")}
-          <option value="أخرى" ${d.itemName==="أخرى"?"selected":""}>أخرى</option>
+          <option value="أخرى" ${d.itemName==="أخرى"?"selected":""}>أخرى (حدد)</option>
         </select>
       </label>
       ${d.itemName==="أخرى"?`<label class="field"><span>اسم الخامة</span><input id="sr-custom" class="input" value="${esc(d.customItem)}"/></label>`:""}
       <div class="row gap2">
         <label class="field grow"><span>الكمية</span><input id="sr-qty" type="number" class="input" value="${esc(d.qty)}"/></label>
-        <label class="field grow"><span>الوحدة</span><input id="sr-unit" class="input" placeholder="لتر / كجم" value="${esc(d.unit)}"/></label>
+        <label class="field grow"><span>الوحدة (اختياري)</span><input id="sr-unit" class="input" placeholder="لتر / كجم / قطعة" value="${esc(d.unit)}"/></label>
       </div>
-      ${activeTasks.length>0?`<label class="field"><span>ربط بمهمة (اختياري)</span>
+      ${activeTasks.length>0?`<label class="field"><span>ربط الطلب بمهمة حالية (اختياري)</span>
         <select id="sr-bus" class="input">
-          <option value="">— بدون —</option>
+          <option value="">— بدون ربط —</option>
           ${activeTasks.map(t=>`<option value="${t.bus.id}" ${d.busId===t.bus.id?"selected":""}>أتوبيس ${esc(t.bus.busNumber)} — ${esc(t.fault.description).slice(0,30)}</option>`).join("")}
         </select>
       </label>`:""}
       <label class="field"><span>ملاحظات</span><textarea id="sr-notes" class="input" rows="2">${esc(d.notes)}</textarea></label>
       ${msgHtml}
-      <button class="btn btn-primary" onclick="submitSupplyRequest()">📨 إرسال الطلب</button>
+      <button class="btn btn-primary" onclick="submitSupplyRequest()">📨 إرسال طلب الصرف لمدير الورشة</button>
     </div>
     <div class="col gap2">
       <div class="txt-sm bold">طلباتي السابقة</div>
-      ${myRequests.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات</p>`:""}
+      ${myRequests.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات سابقة</p>`:""}
       ${myRequests.map(r=>buildSupplyRequestCard(r,"requester")).join("")}
     </div>
   </div>`;
 }
 
+/* شاشة موافقة الطلبات — للمدير */
 function buildSuppliesAdmin(){
   const all = [...DB.supplyRequests].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   const pending = all.filter(r=>r.status===SUPPLY_STATUS.PENDING);
@@ -1245,33 +1247,34 @@ function buildSuppliesAdmin(){
   return `
   <div id="supplies-root" class="max-w col gap4">
     <div class="panel rounded p3 col gap2 no-print">
-      <div class="txt-xs bold sub">تنبيهات</div>
+      <div class="txt-xs bold sub">تنبيهات طلبات الخامات</div>
       <div class="row gap2 wrap center">
-        <label class="field grow" style="min-width:200px;"><span>بريد المدير</span>
+        <label class="field grow" style="min-width:200px;"><span>البريد الإلكتروني لاستقبال إشعارات الطلبات</span>
           <input id="mgr-email" class="input" placeholder="example@mail.com" value="${esc(DB.settings.managerEmail||"")}" onchange="setManagerEmail(this.value)"/>
         </label>
-        <button class="btn btn-subtle" onclick="enableDesktopNotifications()">🔔 تفعيل التنبيهات</button>
+        <button class="btn btn-subtle" onclick="enableDesktopNotifications()">🔔 تفعيل تنبيهات سطح المكتب</button>
       </div>
+      <p class="txt-xs sub">ملحوظة: البرنامج أوف لاين ولا يوجد سيرفر بريد، فلا يمكنه إرسال إيميلات تلقائيًا. البريد أعلاه يُستخدم فقط عشان زرار "إرسال بالإيميل" اللي بيستخدمه الفنيون يعرف يبعتلك عليه.</p>
     </div>
     <div class="col gap2">
       <div class="txt-sm bold">طلبات صرف بانتظار الموافقة (${pending.length})</div>
-      ${pending.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات</p>`:""}
+      ${pending.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات معلّقة</p>`:""}
       ${pending.map(r=>buildSupplyRequestCard(r,"admin")).join("")}
     </div>
     <div class="col gap2">
-      <div class="txt-sm bold">مستندات توريد بانتظار الاعتماد (${pendingStock.length})</div>
-      ${pendingStock.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد مستندات</p>`:""}
+      <div class="txt-sm bold">مستندات توريد مخزن بانتظار الاعتماد (${pendingStock.length})</div>
+      ${pendingStock.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد مستندات معلّقة</p>`:""}
       ${pendingStock.map(s=>buildStockAdditionCard(s,"admin")).join("")}
     </div>
     ${buildInventoryPanel()}
     <div class="col gap2">
-      <div class="txt-sm bold">سجل الطلبات</div>
-      ${others.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل</p>`:""}
+      <div class="txt-sm bold">سجل طلبات الصرف</div>
+      ${others.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل بعد</p>`:""}
       ${others.map(r=>buildSupplyRequestCard(r,null)).join("")}
     </div>
     <div class="col gap2">
-      <div class="txt-sm bold">سجل التوريد</div>
-      ${othersStock.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل</p>`:""}
+      <div class="txt-sm bold">سجل مستندات التوريد</div>
+      ${othersStock.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل بعد</p>`:""}
       ${othersStock.map(s=>buildStockAdditionCard(s,null)).join("")}
     </div>
   </div>`;
@@ -1281,38 +1284,20 @@ function setManagerEmail(v){ DB.settings.managerEmail = v.trim(); saveDB(DB); }
 function approveSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   r.status = SUPPLY_STATUS.APPROVED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label;
-  touch(r); saveDB(DB); renderSuppliesOnly();
+  touch(r);
+  if(!saveDB(DB)) return;
+  renderSuppliesOnly();
 }
 function rejectSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   const reason = prompt("سبب الرفض (اختياري):", "") || "";
   r.status = SUPPLY_STATUS.REJECTED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label; r.rejectReason = reason.trim();
-  touch(r); saveDB(DB); renderSuppliesOnly();
-}
-function enableDesktopNotifications(){
-  if(!("Notification" in window)){ alert("المتصفح لا يدعم التنبيهات"); return; }
-  Notification.requestPermission().then(p=>{
-    if(p==="granted") alert("تم التفعيل ✓");
-    else alert("لم يتم منح الإذن");
-  });
-}
-function mailtoForRequest(r){
-  const email = (DB.settings.managerEmail||"").trim();
-  const subject = encodeURIComponent(`طلب صرف خامة: ${r.itemName}`);
-  const bodyLines = ["طلب صرف خامة جديد من ورشة الأتوبيسات","",`الخامة: ${r.itemName}`,`الكمية: ${r.qty} ${r.unit||""}`,`القسم: ${r.department}`,`بواسطة: ${r.requestedByLabel}`];
-  if(r.busNumber) bodyLines.push(`الأتوبيس: ${r.busNumber}`);
-  if(r.notes) bodyLines.push(`ملاحظات: ${r.notes}`);
-  bodyLines.push(`التاريخ: ${fmtDateTime(r.createdAt)}`);
-  const body = encodeURIComponent(bodyLines.join("\n"));
-  return `mailto:${email}?subject=${subject}&body=${body}`;
-}
-function emailManagerAboutRequest(id){
-  const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
-  if(!DB.settings.managerEmail){ alert("لم يتم تسجيل بريد المدير"); return; }
-  window.location.href = mailtoForRequest(r);
+  touch(r);
+  if(!saveDB(DB)) return;
+  renderSuppliesOnly();
 }
 
-/* ===================== شاشة أمين العهدة ===================== */
+/* شاشة الصرف — لأمين العهدة */
 function buildCustodianView(){
   const approved = DB.supplyRequests.filter(r=>r.status===SUPPLY_STATUS.APPROVED).sort((a,b)=>new Date(a.decidedAt)-new Date(b.decidedAt));
   const dispensed = [...DB.supplyRequests].filter(r=>r.status===SUPPLY_STATUS.DISPENSED).sort((a,b)=>new Date(b.dispensedAt)-new Date(a.dispensedAt)).slice(0,25);
@@ -1322,12 +1307,12 @@ function buildCustodianView(){
     ${buildInventoryPanel()}
     <div class="col gap2">
       <div class="txt-sm bold">طلبات معتمدة بانتظار الصرف (${approved.length})</div>
-      ${approved.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات</p>`:""}
+      ${approved.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد طلبات بانتظار الصرف حاليًا</p>`:""}
       ${approved.map(r=>buildSupplyRequestCard(r,"custodian")).join("")}
     </div>
     <div class="col gap2">
       <div class="txt-sm bold">آخر عمليات الصرف</div>
-      ${dispensed.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل</p>`:""}
+      ${dispensed.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل صرف بعد</p>`:""}
       ${dispensed.map(r=>buildSupplyRequestCard(r,null)).join("")}
     </div>
   </div>`;
@@ -1337,12 +1322,54 @@ function dispenseSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   const nameInput = document.getElementById("cust-recipient-"+id);
   const recipient = nameInput ? nameInput.value.trim() : "";
-  if(!recipient){ alert("يرجى كتابة اسم المستلم"); return; }
+  if(!recipient){ alert("يرجى كتابة اسم مستلم الخامة قبل تسجيل الصرف"); return; }
   r.status = SUPPLY_STATUS.DISPENSED; r.dispensedAt = nowISO(); r.dispensedBy = currentUser.label; r.recipientName = recipient;
-  touch(r); saveDB(DB); renderCustodianOnly();
+  touch(r);
+  if(!saveDB(DB)) return;
+  renderCustodianOnly();
 }
 
-/* ===================== مستندات التوريد ===================== */
+/* تنبيهات: سطح المكتب + رابط بريد جاهز */
+function notifyManagerNewRequest(req){
+  try{
+    if("Notification" in window && Notification.permission==="granted"){
+      new Notification("طلب صرف خامة جديد يحتاج موافقتك", {
+        body: `${req.itemName} × ${req.qty} ${req.unit||""} — بواسطة ${req.requestedByLabel}`,
+      });
+    }
+  }catch(e){}
+}
+function enableDesktopNotifications(){
+  if(!("Notification" in window)){ alert("متصفحك لا يدعم تنبيهات سطح المكتب"); return; }
+  Notification.requestPermission().then(p=>{
+    if(p==="granted") alert("تم التفعيل ✓ هيظهر إشعار على سطح المكتب فور وصول طلب جديد، طالما البرنامج مفتوح على هذا الجهاز.");
+    else alert("لم يتم منح إذن التنبيهات من المتصفح");
+  });
+}
+function mailtoForRequest(r){
+  const email = (DB.settings.managerEmail||"").trim();
+  const subject = encodeURIComponent(`طلب صرف خامة: ${r.itemName}`);
+  const bodyLines = [
+    "طلب صرف خامة جديد من ورشة الأتوبيسات",
+    "",
+    `الخامة: ${r.itemName}`,
+    `الكمية: ${r.qty} ${r.unit||""}`,
+    `القسم الطالب: ${r.department}`,
+    `بواسطة: ${r.requestedByLabel}`,
+  ];
+  if(r.busNumber) bodyLines.push(`الأتوبيس المرتبط: ${r.busNumber}`);
+  if(r.notes) bodyLines.push(`ملاحظات: ${r.notes}`);
+  bodyLines.push(`تاريخ الطلب: ${fmtDateTime(r.createdAt)}`, "", "يرجى فتح البرنامج لمراجعة الطلب واعتماده.");
+  const body = encodeURIComponent(bodyLines.join("\n"));
+  return `mailto:${email}?subject=${subject}&body=${body}`;
+}
+function emailManagerAboutRequest(id){
+  const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
+  if(!DB.settings.managerEmail){ alert("لم يتم تسجيل بريد إلكتروني لمدير الورشة بعد. اطلب من المدير إضافته من شاشة طلبات الخامات."); return; }
+  window.location.href = mailtoForRequest(r);
+}
+
+/* ===================== مستندات توريد المخزن ورصيد الخامات ===================== */
 function todayDateStr(){ return egyptDateString(); }
 function emptyStockAddition(){
   return {id:uid("stockin"), date:todayDateStr(), items:[{name:SUPPLY_ITEMS[0], customItem:"", qty:1, unit:""}],
@@ -1363,7 +1390,7 @@ function syncStockDraftFromDOM(){
   });
 }
 function addStockItemRow(){ syncStockDraftFromDOM(); stockDraft.items.push({name:SUPPLY_ITEMS[0], customItem:"", qty:1, unit:""}); renderStockFormOnly(); }
-function removeStockItemRow(i){ syncStockDraftFromDOM(); stockDraft.items.splice(i,1); if(stockDraft.items.length===0) stockDraft.items.push({name:SUPPLY_ITEMS[0],customItem:"",qty:1,unit:""}); renderStockFormOnly(); }
+function removeStockItemRow(i){ syncStockDraftFromDOM(); stockDraft.items.splice(i,1); if(stockDraft.items.length===0) stockDraft.items.push({name:SUPPLY_ITEMS[0], customItem:"", qty:1, unit:""}); renderStockFormOnly(); }
 function stockItemChanged(i, v){ syncStockDraftFromDOM(); stockDraft.items[i].name = v; renderStockFormOnly(); }
 function renderStockFormOnly(){ const el = document.getElementById("stockform-root"); if(el) el.outerHTML = buildStockAdditionForm(); }
 
@@ -1374,16 +1401,24 @@ function submitStockAddition(){
     name: it.name==="أخرى" ? (it.customItem||"").trim() : it.name,
     qty: Number(it.qty)||0, unit:(it.unit||"").trim()
   })).filter(it=>it.name && it.qty>0);
-  if(items.length===0){ d.msg = "err:يرجى إدخال خامة واحدة على الأقل"; renderStockFormOnly(); return; }
+  if(items.length===0){ d.msg = "err:يرجى إدخال خامة واحدة على الأقل بكمية صحيحة"; renderStockFormOnly(); return; }
   const doc = {id:uid("stockin"), date: d.date||todayDateStr(), items, notes:(d.notes||"").trim(),
     status:SUPPLY_STATUS.PENDING, createdBy:currentUser.label, createdAt:nowISO(),
     decidedAt:null, decidedBy:"", rejectReason:""};
   touch(doc);
   DB.stockAdditions.push(doc);
   if(!saveDB(DB)) return;
+  notifyManagerNewStockAddition(doc);
   resetStockDraft();
-  stockDraft.msg = "ok:تم إرسال المستند ✓";
+  stockDraft.msg = "ok:تم إرسال مستند التوريد لمدير الورشة، بانتظار الاعتماد ✓";
   renderStockFormOnly();
+}
+function notifyManagerNewStockAddition(doc){
+  try{
+    if("Notification" in window && Notification.permission==="granted"){
+      new Notification("مستند توريد مخزن جديد يحتاج اعتمادك", { body:`بتاريخ ${doc.date} — بواسطة ${doc.createdBy}` });
+    }
+  }catch(e){}
 }
 
 function buildStockAdditionCard(s, context){
@@ -1391,11 +1426,14 @@ function buildStockAdditionCard(s, context){
   const [c,bg] = supplyStatusColor(s.status);
   return `<div class="panel2 rounded p3 col gap1">
     <div class="row between center">
-      <span class="txt-sm bold">توريد بتاريخ ${esc(s.date)}</span>
+      <span class="txt-sm bold">توريد مخزن بتاريخ ${esc(s.date)}</span>
       <span class="badge" style="color:${c};background:${bg}">${esc(s.status)}</span>
     </div>
     <div class="txt-xs">${esc(itemsText)}</div>
     <div class="txt-xs sub">بواسطة: ${esc(s.createdBy)} · ${fmtDateTime(s.createdAt)}</div>
+    ${s.notes?`<div class="txt-xs">ملاحظات: ${esc(s.notes)}</div>`:""}
+    ${s.status===SUPPLY_STATUS.REJECTED?`<div class="txt-xs red">سبب الرفض: ${esc(s.rejectReason||"—")}</div>`:""}
+    ${s.status===SUPPLY_STATUS.APPROVED?`<div class="txt-xs sub">اعتمد: ${esc(s.decidedBy)} — ${fmtDateTime(s.decidedAt)}</div>`:""}
     ${context==="admin" && s.status===SUPPLY_STATUS.PENDING?`
       <div class="row gap2" style="margin-top:6px;">
         <button class="btn btn-primary" onclick="approveStockAddition('${s.id}')">✔ اعتماد</button>
@@ -1411,33 +1449,33 @@ function buildStockAdditionForm(){
   return `
   <div id="stockform-root" class="col gap3">
     <div class="panel rounded-lg p4 col gap3">
-      <div class="txt-sm bold">📥 مستند توريد جديد</div>
-      <label class="field"><span>التاريخ</span><input id="sd-date" type="date" class="input" value="${esc(d.date)}" onchange="syncStockDraftFromDOM()"/></label>
+      <div class="txt-sm bold">📥 مستند توريد جديد للمخزن (يحتاج اعتماد مدير الورشة)</div>
+      <label class="field"><span>تاريخ التوريد</span><input id="sd-date" type="date" class="input" value="${esc(d.date)}" onchange="syncStockDraftFromDOM()"/></label>
       <div class="col gap2">
         ${d.items.map((it,i)=>`
           <div class="panel2 rounded p2 col gap2">
             <div class="row gap2">
               <select id="sd-name-${i}" class="input grow" onchange="stockItemChanged(${i}, this.value)">
                 ${materialsCatalog().map(x=>`<option value="${esc(x)}" ${it.name===x?"selected":""}>${esc(x)}</option>`).join("")}
-                <option value="أخرى" ${it.name==="أخرى"?"selected":""}>أخرى</option>
+                <option value="أخرى" ${it.name==="أخرى"?"selected":""}>أخرى (حدد)</option>
               </select>
               ${d.items.length>1?`<button class="icon-btn" onclick="removeStockItemRow(${i})">🗑</button>`:""}
             </div>
             ${it.name==="أخرى"?`<input id="sd-custom-${i}" class="input" placeholder="اسم الخامة" value="${esc(it.customItem)}"/>`:""}
             <div class="row gap2">
               <input id="sd-qty-${i}" type="number" class="input grow" placeholder="الكمية" value="${esc(it.qty)}"/>
-              <input id="sd-unit-${i}" class="input grow" placeholder="الوحدة" value="${esc(it.unit)}"/>
+              <input id="sd-unit-${i}" class="input grow" placeholder="الوحدة (لتر/كجم/قطعة)" value="${esc(it.unit)}"/>
             </div>
           </div>`).join("")}
       </div>
-      <button class="btn btn-ghost" onclick="addStockItemRow()">+ إضافة خامة</button>
+      <button class="btn btn-ghost" onclick="addStockItemRow()">+ إضافة خامة أخرى لنفس المستند</button>
       <label class="field"><span>ملاحظات</span><textarea id="sd-notes" class="input" rows="2">${esc(d.notes)}</textarea></label>
       ${msgHtml}
-      <button class="btn btn-primary" onclick="submitStockAddition()">📨 إرسال المستند</button>
+      <button class="btn btn-primary" onclick="submitStockAddition()">📨 إرسال المستند لاعتماد المدير</button>
     </div>
     <div class="col gap2">
-      <div class="txt-sm bold">آخر المستندات</div>
-      ${myDocs.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا يوجد سجل</p>`:""}
+      <div class="txt-sm bold">آخر مستندات التوريد</div>
+      ${myDocs.length===0?`<p class="txt-xs sub" style="text-align:center;padding:20px 0;">لا توجد مستندات بعد</p>`:""}
       ${myDocs.map(s=>buildStockAdditionCard(s,null)).join("")}
     </div>
   </div>`;
@@ -1445,16 +1483,20 @@ function buildStockAdditionForm(){
 function approveStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   s.status = SUPPLY_STATUS.APPROVED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label;
-  touch(s); saveDB(DB); renderSuppliesOnly();
+  touch(s);
+  if(!saveDB(DB)) return;
+  renderSuppliesOnly();
 }
 function rejectStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   const reason = prompt("سبب الرفض (اختياري):", "") || "";
   s.status = SUPPLY_STATUS.REJECTED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label; s.rejectReason = reason.trim();
-  touch(s); saveDB(DB); renderSuppliesOnly();
+  touch(s);
+  if(!saveDB(DB)) return;
+  renderSuppliesOnly();
 }
 
-/* ===================== رصيد المخزن ===================== */
+/* رصيد المخزن = مجموع التوريدات المعتمدة − مجموع الكميات المصروفة فعليًا */
 function computeInventoryBalance(){
   const balance = {};
   DB.stockAdditions.filter(s=>s.status===SUPPLY_STATUS.APPROVED).forEach(s=>{
@@ -1479,33 +1521,34 @@ function buildInventoryPanel(){
   return `
   <div class="col gap2">
     <div class="row between center wrap gap2">
-      <div class="txt-sm bold">📦 رصيد المخزن</div>
+      <div class="txt-sm bold">📦 رصيد المخزن الحالي</div>
       <div class="row gap2">
-        <button class="btn btn-subtle" onclick="exportInventoryBalanceCSV()">⬇ CSV الرصيد</button>
-        <button class="btn btn-subtle" onclick="exportDispenseLogCSV()">⬇ CSV الصرف</button>
+        <button class="btn btn-subtle" onclick="exportInventoryBalanceCSV()">⬇ رصيد المخزن CSV</button>
+        <button class="btn btn-subtle" onclick="exportDispenseLogCSV()">⬇ سجل الصرف CSV</button>
       </div>
     </div>
     <table class="itable">
-      <tr><th>الخامة</th><th>الرصيد</th><th>الوحدة</th></tr>
-      ${names.length===0?`<tr><td colspan="3" style="text-align:center;">لا يوجد رصيد</td></tr>`:""}
+      <tr><th>الخامة</th><th>الرصيد الحالي</th><th>الوحدة</th></tr>
+      ${names.length===0?`<tr><td colspan="3" style="text-align:center;">لا يوجد رصيد مسجل بعد</td></tr>`:""}
       ${names.map(n=>`<tr><td>${esc(n)}</td><td style="font-weight:800;${balance[n].qty<0?"color:var(--red);":""}">${esc(balance[n].qty)}</td><td>${esc(balance[n].unit||"—")}</td></tr>`).join("")}
     </table>
   </div>`;
 }
 function exportInventoryBalanceCSV(){
   const balance = computeInventoryBalance();
-  const rows = [["الخامة","الرصيد","الوحدة"]];
+  const rows = [["الخامة","الرصيد الحالي","الوحدة"]];
   Object.keys(balance).sort((a,b)=>a.localeCompare("ar")).forEach(n=>rows.push([n, balance[n].qty, balance[n].unit||""]));
   exportCSV(rows, "رصيد-المخزن.csv");
 }
 function exportDispenseLogCSV(){
-  const rows = [["التاريخ","الخامة","الكمية","الوحدة","أتوبيس","القسم","المستلم","صرف بواسطة","ملاحظات"]];
+  const rows = [["التاريخ","الخامة","الكمية","الوحدة","رقم الأتوبيس المستفيد","القسم الطالب","اسم المستلم","صرف بواسطة","ملاحظات"]];
   DB.supplyRequests.filter(r=>r.status===SUPPLY_STATUS.DISPENSED)
     .sort((a,b)=>new Date(b.dispensedAt)-new Date(a.dispensedAt))
     .forEach(r=>rows.push([fmtDateTime(r.dispensedAt), r.itemName, r.qty, r.unit||"", r.busNumber||"—", r.department, r.recipientName, r.dispensedBy, r.notes||""]));
   exportCSV(rows, "سجل-صرف-الخامات.csv");
 }
-  /* ===================== التقارير ===================== */
+
+/* ===================== التقارير ===================== */
 function exportCSV(rows, filename){
   const csv = rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
@@ -1515,7 +1558,7 @@ function exportCSV(rows, filename){
 function exportBackup(){
   const blob = new Blob([JSON.stringify(DB,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href=url; a.download="نسخة-احتياطية-"+new Date().toISOString().slice(0,10)+".json"; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement("a"); a.href=url; a.download="نسخة-احتياطية-ورشة-"+new Date().toISOString().slice(0,10)+".json"; a.click(); URL.revokeObjectURL(url);
 }
 function importBackupFile(input){
   const file = input.files[0]; if(!file) return;
@@ -1524,26 +1567,21 @@ function importBackupFile(input){
     try{
       const parsed = JSON.parse(reader.result);
       if(!parsed.buses) throw new Error("bad");
-      if(!confirm("⚠ استعادة كاملة — ستستبدل كل البيانات الحالية. متابعة؟")) return;
-      DB = normalizeDB(parsed); saveDB(DB); render();
-    }catch(e){ alert("ملف غير صالح"); }
+      if(!parsed.supplyRequests) parsed.supplyRequests = [];
+      if(!parsed.stockAdditions) parsed.stockAdditions = [];
+      if(!parsed.settings) parsed.settings = {managerEmail:""};
+      if(!parsed.meta) parsed.meta = {deletedFaultIds:{}};
+      if(confirm("⚠ تحذير: هذه استعادة كاملة، وستستبدل وتمسح كل البيانات الحالية على هذا الجهاز بالكامل (مش دمج). استخدمها فقط لو عايز ترجع نسخة قديمة وقت الطوارئ. هل أنت متأكد من المتابعة؟")){
+        DB = parsed; saveDB(DB); render();
+      }
+    }catch(e){ alert("ملف النسخة الاحتياطية غير صالح"); }
   };
   reader.readAsText(file);
 }
-
-/* ===================== المزامنة اليدوية (تصدير/استيراد JSON) ===================== */
-function defaultDeviceName(){ return (currentUser && currentUser.inspector) ? currentUser.label : ""; }
-function exportSyncFile(){
-  const dn = getDeviceName() || defaultDeviceName();
-  if(!dn){ alert("اكتب اسم الجهاز أولاً"); return; }
-  const payload = {__syncMeta:{deviceName:dn, exportedAt:nowISO(), app:"ورشة الأتوبيسات", syncVersion:1},
-    buses: DB.buses, supplyRequests: DB.supplyRequests, stockAdditions: DB.stockAdditions, settings: DB.settings, meta: DB.meta};
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const stamp = new Date().toISOString().slice(0,16).replace("T","_").replace(":","-");
-  const safeName = dn.replace(/[\\/:*?"<>|]/g,"-");
-  const a = document.createElement("a"); a.href=url; a.download=`مزامنة-${safeName}-${stamp}.json`; a.click(); URL.revokeObjectURL(url);
-}
+/* ===================== مزامنة البيانات بين الأجهزة (دمج ذكي، بدون استبدال أو فقدان أي شغل) =====================
+   الفكرة: كل سجل (أتوبيس / مهمة إصلاح / طلب خامة / مستند توريد) معاه updatedAt.
+   عند الدمج، بيتقارن كل سجل بمفرده مع نظيره: الأحدث (updatedAt) هو اللي يفوز، والسجلات الجديدة تتضاف،
+   وده بيسمح لأكتر من جهاز (كل قسم على موبايله) يشتغلوا في نفس الوقت من غير ما حد يمسح شغل التاني. */
 function mergeArraysById(localArr, incomingArr){
   const map = new Map((localArr||[]).map(x=>[x.id,x]));
   let added=0, updated=0;
@@ -1580,6 +1618,7 @@ function mergeBusesArrays(localBuses, incomingBuses, deletedFaultIds){
       const fit = new Date(incF.updatedAt||0).getTime();
       if(fit > flt){ faultMap.set(incF.id, incF); faultsUpdated++; }
     });
+    // إزالة أي مهمة اتحذفت (تومبستون) حتى لو كانت لسه موجودة محليًا
     Array.from(faultMap.keys()).forEach(fid=>{ if(deletedFaultIds[fid]) faultMap.delete(fid); });
     target.faults = Array.from(faultMap.values());
     map.set(incBus.id, target);
@@ -1591,13 +1630,36 @@ function mergeDB(local, incoming){
   const busesR = mergeBusesArrays(local.buses, incoming.buses, deletedFaultIds);
   const supR = mergeArraysById(local.supplyRequests, incoming.supplyRequests);
   const stkR = mergeArraysById(local.stockAdditions, incoming.stockAdditions);
-  const merged = {buses: busesR.list, supplyRequests: supR.list, stockAdditions: stkR.list,
-    settings: local.settings, meta: {deletedFaultIds}};
-  const summary = {busesAdded: busesR.busesAdded, busesUpdated: busesR.busesUpdated,
+  const merged = {
+    buses: busesR.list,
+    supplyRequests: supR.list,
+    stockAdditions: stkR.list,
+    settings: local.settings, // إعدادات الجهاز (بريد المدير) بتفضل زي ما هي على هذا الجهاز
+    meta: {deletedFaultIds},
+  };
+  const summary = {
+    busesAdded: busesR.busesAdded, busesUpdated: busesR.busesUpdated,
     faultsAdded: busesR.faultsAdded, faultsUpdated: busesR.faultsUpdated,
     supplyAdded: supR.added, supplyUpdated: supR.updated,
-    stockAdded: stkR.added, stockUpdated: stkR.updated};
+    stockAdded: stkR.added, stockUpdated: stkR.updated,
+  };
   return {merged, summary};
+}
+function defaultDeviceName(){ return (currentUser && currentUser.inspector) ? currentUser.label : ""; }
+function exportSyncFile(){
+  const dn = getDeviceName() || defaultDeviceName();
+  if(!dn){ alert("قبل التصدير، من فضلك اكتب اسم لهذا الجهاز في الأعلى (مثال: موبايل السمكرة) عشان تعرفوا الملف ده جاي منين."); return; }
+  const payload = {
+    __syncMeta: {deviceName: dn, exportedAt: nowISO(), app: "ورشة الأتوبيسات", syncVersion: 1},
+    buses: DB.buses, supplyRequests: DB.supplyRequests, stockAdditions: DB.stockAdditions,
+    settings: DB.settings, meta: DB.meta,
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const stamp = new Date().toISOString().slice(0,16).replace("T","_").replace(":","-");
+  const safeName = dn.replace(/[\\/:*?"<>|]/g,"-");
+  const a = document.createElement("a");
+  a.href = url; a.download = `مزامنة-${safeName}-${stamp}.json`; a.click(); URL.revokeObjectURL(url);
 }
 function mergeSyncFile(input){
   const file = input.files[0]; if(!file) return;
@@ -1611,19 +1673,19 @@ function mergeSyncFile(input){
       if(!parsed.meta) parsed.meta = {deletedFaultIds:{}};
       const fromName = parsed.__syncMeta ? parsed.__syncMeta.deviceName : "جهاز غير معروف";
       const exportedAt = parsed.__syncMeta ? fmtDateTime(parsed.__syncMeta.exportedAt) : "—";
-      if(!confirm(`دمج تحديثات من:\n« ${fromName} »\nتاريخ التصدير: ${exportedAt}\n\nدمج آمن (لا يمسح شغلك) — متابعة؟`)) return;
+      if(!confirm(`سيتم دمج التحديثات القادمة من:\n« ${fromName} »\nتاريخ التصدير: ${exportedAt}\n\nهذه العملية دمج آمن (مش استبدال) — أي شغل جديد أو محدَّث هيتضاف لبياناتك الحالية، ومفيش حاجة عندك هتتمسح. متابعة؟`)) return;
       const {merged, summary} = mergeDB(DB, parsed);
       DB = merged;
       if(!saveDB(DB)) return;
-      alert(`تم الدمج ✓\nأتوبيسات جديدة: ${summary.busesAdded} — محدثة: ${summary.busesUpdated}\nمهام جديدة: ${summary.faultsAdded} — محدثة: ${summary.faultsUpdated}\nطلبات جديدة: ${summary.supplyAdded} — محدثة: ${summary.supplyUpdated}\nمستندات جديدة: ${summary.stockAdded} — محدثة: ${summary.stockUpdated}`);
+      alert(`تم الدمج بنجاح ✓\n\nأتوبيسات جديدة: ${summary.busesAdded} — محدَّثة: ${summary.busesUpdated}\nمهام إصلاح جديدة: ${summary.faultsAdded} — محدَّثة: ${summary.faultsUpdated}\nطلبات خامات جديدة: ${summary.supplyAdded} — محدَّثة: ${summary.supplyUpdated}\nمستندات توريد جديدة: ${summary.stockAdded} — محدَّثة: ${summary.stockUpdated}`);
       render();
-    }catch(e){ alert("ملف مزامنة غير صالح"); }
+    }catch(e){ alert("ملف المزامنة غير صالح أو تالف"); }
   };
   reader.readAsText(file);
   input.value = "";
 }
 
-/* ===================== لوحة المزامنة ===================== */
+/* ===================== لوحة المزامنة (مشتركة بين تبويب التقارير وتبويب المزامنة الخاص بقسم التفتيش) ===================== */
 function saveDeviceNameFromInput(){
   const el = document.getElementById("dev-name-input");
   if(el) setDeviceName(el.value);
@@ -1631,20 +1693,23 @@ function saveDeviceNameFromInput(){
 }
 function buildSyncPanel(){
   const insp = !!(currentUser && currentUser.inspector);
-  const ph = insp ? ("مثال: موبايل " + currentUser.label) : "مثال: موبايل السمكرة 1";
+  const ph = insp ? ("مثال: موبايل " + currentUser.label) : "مثال: موبايل السمكرة 1 — أو: التابلت الرئيسي";
   return `
     <div class="panel rounded-lg p4 col gap3 no-print" style="border-color:var(--amber);">
-      <div class="txt-sm bold amber">🔄 مزامنة العمل بين الأجهزة (احتياطي)</div>
-      <label class="field"><span>اسم هذا الجهاز</span>
+      <div class="row between center wrap gap2">
+        <div class="txt-sm bold amber">🔄 مزامنة العمل بين الأجهزة (أوف لاين)</div>
+      </div>
+      <label class="field"><span>اسم هذا الجهاز (يظهر في ملف المزامنة عشان تعرفوا مين بعت إيه)</span>
         <div class="row gap2">
           <input id="dev-name-input" class="input" placeholder="${esc(ph)}" value="${esc(getDeviceName())}"/>
           <button class="btn btn-subtle" onclick="saveDeviceNameFromInput()">حفظ</button>
         </div>
       </label>
-      <p class="txt-xs sub">النظام يتزامن تلقائياً عبر السحابة. لكن لو حبيت نقل شغل يدوياً: صدّر ملف مزامنة، وابعته (واتساب/بلوتوث/فلاشة) للتابلت الرئيسي عشان يدمجه.</p>
+      ${insp?`<p class="txt-xs sub">لو سبت اسم الجهاز فاضي هيتسمّى الملف باسمك (${esc(currentUser.label)}).</p>`:""}
+      <p class="txt-xs sub">في الصبح: استورد آخر ملف مزامنة من التابلت الرئيسي لتحديث نسختك. وبعد ما تخلّص شغلك: صدّر ملف مزامنة وابعته (واتساب / بلوتوث / فلاشة) للتابلت الرئيسي عشان يدمج شغلك مع باقي الأقسام. الدمج آمن ومفيش فيه أي مسح لبيانات — كل التحديثات بتتجمع مع بعضها.</p>
       <div class="row gap2 wrap">
         <button class="btn btn-primary" onclick="exportSyncFile()">⬇ تصدير ملف مزامنة</button>
-        <label class="btn btn-subtle" style="cursor:pointer;">⬆ استيراد ودمج<input type="file" style="display:none" onchange="mergeSyncFile(this)"/></label>
+        <label class="btn btn-subtle" style="cursor:pointer;">⬆ استيراد ودمج ملف مزامنة<input type="file" style="display:none" onchange="mergeSyncFile(this)"/></label>
       </div>
     </div>`;
 }
@@ -1653,21 +1718,10 @@ function buildSyncTab(){
   <div id="sync-root" class="max-w col gap4">
     <div class="panel rounded p3 no-print" id="storage-usage-box"></div>
     ${buildSyncPanel()}
-    ${buildBackupPanel()}
   </div>`;
 }
-function buildBackupPanel(){
-  return `
-    <div class="panel rounded p3 col gap2 no-print">
-      <div class="txt-xs bold sub">⚠ نسخة احتياطية كاملة (استبدال تام — للطوارئ فقط)</div>
-      <div class="row gap2 wrap">
-        <button class="btn btn-subtle" onclick="exportBackup()">⬇ تصدير نسخة احتياطية</button>
-        <label class="btn btn-subtle" style="cursor:pointer;">⬆ استيراد (استبدال)<input type="file" accept="application/json" style="display:none" onchange="importBackupFile(this)"/></label>
-      </div>
-    </div>`;
-}
 
-/* ===================== مؤشر مساحة التخزين ===================== */
+/* ===================== مؤشر مساحة التخزين المستخدمة على الجهاز ===================== */
 async function refreshStorageUsageOnly(){
   const el = document.getElementById("storage-usage-box");
   if(!el) return;
@@ -1683,13 +1737,14 @@ function buildStorageUsageBar(usage, quota, pct){
   const mb = n => (n/1024/1024).toFixed(1);
   const color = pct>85 ? "var(--red)" : (pct>60 ? "var(--amber)" : "var(--green)");
   return `<div class="col gap1">
-    <div class="row between wrap gap1 txt-xs sub"><span>مساحة التخزين المستخدمة</span><span class="bold" style="color:${color}">${mb(usage)} م.ب من ${mb(quota)} م.ب (${pct}%)</span></div>
+    <div class="row between wrap gap1 txt-xs sub"><span>مساحة التخزين المستخدمة على هذا الجهاز</span><span class="bold" style="color:${color}">${mb(usage)} م.ب من ${mb(quota)} م.ب (${pct}%)</span></div>
     <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${color};"></div></div>
-    ${pct>80?`<p class="txt-xs" style="color:var(--red);">⚠ المساحة قربت تخلص</p>`:""}
+    ${pct>80?`<p class="txt-xs" style="color:var(--red);">⚠ المساحة قربت تخلص — استخدم زرار "تفريغ الصور القديمة" تحت، أو صدّر نسخة احتياطية وابدأ تنضيف الأتوبيسات القديمة.</p>`:""}
   </div>`;
 }
+/* تفريغ صور الأتوبيسات المُسلَّمة من زمن (البيانات والتكاليف والتقارير تفضل زي ما هي، الصور بس اللي بتتمسح لأنها أكبر حاجة بتاخد مساحة) */
 function purgeOldDeliveredPhotos(){
-  const daysStr = prompt("مسح صور الأتوبيسات المُسلَّمة من أكتر من كام يوم؟", "14");
+  const daysStr = prompt("امسح صور الأتوبيسات المُسلَّمة من أكتر من كام يوم؟\n(البيانات والتكلفة والتقارير النصية هتفضل موجودة زي ما هي، الصور بس هي اللي هتتمسح نهائيًا)", "14");
   if(daysStr===null) return;
   const days = Number(daysStr);
   if(!days || days<=0){ alert("رقم أيام غير صحيح"); return; }
@@ -1706,14 +1761,13 @@ function purgeOldDeliveredPhotos(){
     });
     if(touchedBus){ touch(b); busCount++; }
   });
-  if(photoCount===0){ alert("لا توجد صور لتفريغها"); return; }
-  if(!confirm(`سيتم حذف ${photoCount} صورة من ${busCount} أتوبيس. متابعة؟`)) return;
+  if(photoCount===0){ alert("لا توجد صور لأتوبيسات مُسلَّمة من أكتر من "+days+" يوم لتفريغها حاليًا."); return; }
+  if(!confirm(`سيتم حذف ${photoCount} صورة نهائيًا من ${busCount} أتوبيس مُسلَّم من أكتر من ${days} يوم.\nمهم: تأكد إنك مصدّر تقرير Word/PDF محفوظ فيه الصور دي قبل الحذف، لأن الحذف نهائي ولا يمكن التراجع عنه.\nمتابعة؟`)) return;
   if(!saveDB(DB)) return;
-  alert("تم التفريغ ✓");
+  alert("تم تفريغ "+photoCount+" صورة بنجاح ✓");
   render();
 }
 
-/* ===================== التقارير الرئيسية ===================== */
 function reportsSetQ(v){ reportsQ = v; renderReportsOnly(); }
 function reportsSetDept(v){ reportsDept = v; renderReportsOnly(); }
 function reportsSetStatus(v){ reportsStatus = v; renderReportsOnly(); }
@@ -1749,13 +1803,36 @@ function buildReports(restrictDept){
   <div id="reports-root" class="max-w col gap4">
     <div class="panel rounded p3 no-print" id="storage-usage-box"></div>
     ${buildSyncPanel()}
-    ${buildBackupPanel()}
-    <div class="panel rounded p3 col gap1 no-print">
-      <div class="row between center wrap gap2">
-        <span class="txt-xs sub">🧹 حذف صور الأتوبيسات القديمة المُسلَّمة</span>
-        <button class="btn btn-subtle" onclick="purgeOldDeliveredPhotos()">🧹 تفريغ</button>
+    ${currentUser.role==="admin"?`
+    <div class="panel rounded p3 row between center wrap gap2 no-print">
+      <div class="col gap1">
+        <span class="txt-xs sub">الحفظ المباشر كملف على جهازك (بدون تصدير يدوي)</span>
+        <span class="txt-xs bold" style="color:${saveDirHandle && saveDirStatus.startsWith('متصل')?'var(--green)':'var(--amber)'}">${esc(FS_SUPPORTED?saveDirStatus:"غير مدعوم على هذا المتصفح (استخدم Chrome أو Edge)")}</span>
+      </div>
+      <div class="row gap2">
+        ${!FS_SUPPORTED?"":
+          !saveDirHandle ? `<button class="btn btn-subtle" onclick="chooseSaveFolder()">📁 اختيار مجلد الحفظ</button>` :
+          saveDirStatus.startsWith("متصل") ? `<button class="btn btn-ghost" onclick="chooseSaveFolder()">📁 تغيير المجلد</button>` :
+          `<button class="btn btn-primary" onclick="relinkSaveFolder()">🔗 إعادة ربط المجلد</button>`
+        }
       </div>
     </div>
+    <div class="panel rounded p3 col gap1 no-print">
+      <div class="row between center wrap gap2">
+        <span class="txt-xs sub">🧹 تفريغ مساحة: حذف صور الأتوبيسات القديمة المُسلَّمة فقط (البيانات والتكلفة تفضل كما هي)</span>
+        <button class="btn btn-subtle" onclick="purgeOldDeliveredPhotos()">🧹 تفريغ الصور القديمة</button>
+      </div>
+    </div>
+    <div class="panel rounded p3 col gap1 no-print">
+      <div class="row between center wrap gap2">
+        <span class="txt-xs sub">⚠ نسخة احتياطية كاملة — ""استبدال تام"" لكل البيانات (للطوارئ فقط، وليست للمزامنة اليومية)</span>
+        <div class="row gap2">
+          <button class="btn btn-subtle" onclick="exportBackup()">⬇ تصدير نسخة احتياطية</button>
+          <label class="btn btn-subtle" style="cursor:pointer;">⬆ استيراد (استبدال تام)<input type="file" accept="application/json" style="display:none" onchange="importBackupFile(this)"/></label>
+        </div>
+      </div>
+    </div>`:""}
+    <p class="txt-xs sub no-print">💡 عايز تقرير كل مهام الإصلاح الخاصة بأتوبيس واحد أو سائق واحد بس؟ اكتب رقم الأتوبيس أو اسم السائق في المربع تحت. وعايز تحدد بس الأتوبيسات "جاهزة للتسليم" أو "قيد الإصلاح"؟ استخدم قائمة الحالة. وبعدين دوس على نوع التقرير اللي عايزه (Word / PDF / CSV).</p>
     <div class="row wrap gap2 center no-print">
       <input class="input grow" style="min-width:180px;" placeholder="بحث بالسائق أو رقم الأتوبيس" value="${esc(reportsQ)}" oninput="reportsSetQ(this.value)"/>
       ${!restrictDept?`<select class="input" style="width:140px;" onchange="reportsSetDept(this.value)">
@@ -1766,11 +1843,11 @@ function buildReports(restrictDept){
         <option value="الكل" ${reportsStatus==="الكل"?"selected":""}>كل الحالات</option>
         ${Object.values(BUS_STATUS).map(s=>`<option value="${esc(s)}" ${reportsStatus===s?"selected":""}>${esc(s)}</option>`).join("")}
       </select>
-      <button class="btn btn-subtle" onclick='exportCSV(reportRows(),"تقرير-الورشة.csv")'>⬇ CSV</button>
-      <button class="btn btn-subtle" onclick="window.print()">🖨 طباعة</button>
-      <button class="btn btn-subtle" onclick='exportCSV(detailedReportRows(lastFilteredBuses),"تقرير-تفصيلي.csv")'>⬇ CSV تفصيلي</button>
-      <button class="btn btn-subtle" onclick="printDetailedReport(lastFilteredBuses)">🖨 PDF تفصيلي</button>
-      <button class="btn btn-primary" onclick='downloadWordReport(lastFilteredBuses,"تقرير-تفصيلي-الورشة.doc")'>📄 Word</button>
+      <button class="btn btn-subtle" onclick='exportCSV(reportRows(),"تقرير-الورشة.csv")'>⬇ تصدير CSV</button>
+      <button class="btn btn-subtle" onclick="window.print()">🖨 طباعة / PDF</button>
+      <button class="btn btn-subtle" onclick='exportCSV(detailedReportRows(lastFilteredBuses),"تقرير-تفصيلي-الورشة.csv")'>⬇ CSV تفصيلي (بكل مهمة إصلاح)</button>
+      <button class="btn btn-subtle" onclick="printDetailedReport(lastFilteredBuses)">🖨 تقرير تفصيلي شامل (PDF)</button>
+      <button class="btn btn-primary" onclick='downloadWordReport(lastFilteredBuses,"تقرير-تفصيلي-الورشة.doc")'>📄 تقرير Word</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
       <div class="panel rounded p3" style="text-align:center;"><div class="txt-xs sub">عدد الأتوبيسات</div><div class="txt-lg bold">${filtered.length}</div></div>
@@ -1785,9 +1862,9 @@ function buildReports(restrictDept){
       </div>`).join("")}</div>
     </div>`:""}
     <div class="panel rounded-lg p4">
-      <p class="txt-sm bold" style="margin-bottom:10px;">إنتاجية الفنيين والأقسام</p>
+      <p class="txt-sm bold" style="margin-bottom:10px;">إنتاجية الفنيين والأقسام (أعمال مكتملة)</p>
       <div class="col gap1">
-        ${techList.length===0?`<p class="txt-xs sub">لا توجد أعمال مكتملة</p>`:""}
+        ${techList.length===0?`<p class="txt-xs sub">لا توجد أعمال مكتملة بعد</p>`:""}
         ${techList.map(([name,count])=>`<div class="row between txt-xs"><span>${esc(name)}</span><span class="bold amber">${count}</span></div>`).join("")}
       </div>
     </div>
@@ -1799,55 +1876,60 @@ function buildReports(restrictDept){
     </div>
   </div>`;
 }
-
-/* ===================== التقرير التفصيلي ===================== */
+/* ===================== التقرير التفصيلي (لكل مهمة إصلاح: وصف، صور، ملاحظات، خامات، تكلفة) ===================== */
 function detailedReportRows(buses){
-  const rows = [["رقم الأتوبيس","السائق","كود السائق","القسم","الوصف","الحالة","ملاحظات",
-    "الفنيون","قطع الغيار","الخامات","المصنعية","إجمالي المهمة","صور قبل","صور بعد","استلام","بداية","انتهاء"]];
+  const rows = [["رقم الأتوبيس","السائق","كود السائق","القسم","وصف مهمة الإصلاح","الحالة","ملاحظات الصنايعي",
+    "الفنيون","قطع الغيار (اسم × كمية × سعر)","الخامات المستخدمة (اسم × كمية × سعر)","سعر المصنعية",
+    "إجمالي تكلفة مهمة الإصلاح","عدد صور قبل الإصلاح","عدد صور بعد الإصلاح","تاريخ الاستلام","تاريخ البداية","تاريخ الانتهاء"]];
   (buses||[]).forEach(b=>{
     (b.faults||[]).forEach(f=>{
-      rows.push([b.busNumber, b.driverName, b.driverCode||"", f.department, f.description, f.status, f.notes||"",
+      rows.push([
+        b.busNumber, b.driverName, b.driverCode||"", f.department, f.description, f.status, f.notes||"",
         (f.technicians||[]).filter(t=>t.name).map(t=>t.name+(t.role?" ("+t.role+")":"")).join(" / "),
         (f.spareParts||[]).filter(p=>p.name).map(p=>`${p.name} × ${p.qty||1} × ${fmtMoney(p.price)}`).join(" / "),
         (f.materials||[]).filter(m=>m.name).map(m=>`${m.name} × ${m.qty||1} × ${fmtMoney(m.price)}`).join(" / "),
         Number(f.laborCost)||0, faultTotal(f),
         (f.photosBefore||[]).length, (f.photosAfter||[]).length,
-        fmtDateTime(f.receivedDate), fmtDateTime(f.startDate), fmtDateTime(f.endDate)]);
+        fmtDateTime(f.receivedDate), fmtDateTime(f.startDate), fmtDateTime(f.endDate)
+      ]);
     });
   });
   return rows;
 }
+
 function buildFaultDetailBlock(f, i){
-  const rowsTable = (title, items) => (!items || items.length===0) ? "" : `
+  const rowsTable = (title, items, calcTotal) => (!items || items.length===0) ? "" : `
     <p class="rlabel">${title}</p>
     <table><tr><th>الاسم</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr>
       ${items.map(it=>`<tr><td>${esc(it.name)}</td><td>${esc(it.qty||1)}</td><td>${fmtMoney(it.price)}</td><td>${fmtMoney((Number(it.price)||0)*(Number(it.qty)||1))}</td></tr>`).join("")}
     </table>`;
   return `
   <div class="rfault">
-    <p class="rfault-title">مهمة ${i+1} — ${esc(f.department)} — ${esc(f.status)}</p>
-    <p><span class="rlabel">الوصف:</span> ${esc(f.description)}</p>
-    ${f.notes ? `<p><span class="rlabel">ملاحظات:</span> ${esc(f.notes)}</p>` : ""}
-    <p class="rdates">استلام: ${fmtDateTime(f.receivedDate)} · بداية: ${fmtDateTime(f.startDate)} · انتهاء: ${fmtDateTime(f.endDate)}</p>
+    <p class="rfault-title">مهمة إصلاح ${i+1} — القسم: ${esc(f.department)} — الحالة: ${esc(f.status)}</p>
+    <p><span class="rlabel">وصف مهمة الإصلاح:</span> ${esc(f.description)}</p>
+    ${f.notes ? `<p><span class="rlabel">ملاحظات الصنايعي:</span> ${esc(f.notes)}</p>` : ""}
+    <p class="rdates">استلام: ${fmtDateTime(f.receivedDate)} &nbsp;·&nbsp; بداية العمل: ${fmtDateTime(f.startDate)} &nbsp;·&nbsp; انتهاء: ${fmtDateTime(f.endDate)}</p>
     ${(f.technicians&&f.technicians.filter(t=>t.name).length) ? `<p><span class="rlabel">الفنيون:</span> ${f.technicians.filter(t=>t.name).map(t=>esc(t.name)+(t.role?" ("+esc(t.role)+")":"")).join("، ")}</p>` : ""}
-    ${(f.photosBefore&&f.photosBefore.length) ? `<p class="rlabel">صور قبل الإصلاح:</p><div class="rphotos">${f.photosBefore.map(p=>`<img src="${p}"/>`).join("")}</div>` : ""}
+    ${(f.photosBefore&&f.photosBefore.length) ? `<p class="rlabel">صور مهمة الإصلاح (قبل الإصلاح):</p><div class="rphotos">${f.photosBefore.map(p=>`<img src="${p}"/>`).join("")}</div>` : ""}
     ${(f.photosAfter&&f.photosAfter.length) ? `<p class="rlabel">صور بعد الإصلاح:</p><div class="rphotos">${f.photosAfter.map(p=>`<img src="${p}"/>`).join("")}</div>` : ""}
-    ${rowsTable("قطع الغيار", (f.spareParts||[]).filter(p=>p.name))}
-    ${rowsTable("الخامات", (f.materials||[]).filter(m=>m.name))}
-    <p><span class="rlabel">المصنعية:</span> ${fmtMoney(f.laborCost)}</p>
-    <p class="rfault-total">إجمالي المهمة: ${fmtMoney(faultTotal(f))}</p>
+    ${rowsTable("قطع الغيار المستخدمة", (f.spareParts||[]).filter(p=>p.name))}
+    ${rowsTable("الخامات المستخدمة", (f.materials||[]).filter(m=>m.name))}
+    <p><span class="rlabel">سعر المصنعية:</span> ${fmtMoney(f.laborCost)}</p>
+    <p class="rfault-total">إجمالي تكلفة مهمة الإصلاح هذه: ${fmtMoney(faultTotal(f))}</p>
   </div>`;
 }
+
 function buildBusDetailedReportBlock(bus){
   return `
   <div class="rbus">
     <h2>أتوبيس ${esc(bus.busNumber)} — السائق: ${esc(bus.driverName)} ${bus.driverCode?`(كود: ${esc(bus.driverCode)})`:""}</h2>
-    <p class="rmeta">المفتش: ${esc(bus.inspectorName)} · التفتيش: ${fmtDateTime(bus.inspectionDate)} · الحالة: ${esc(computeBusStatus(bus))}</p>
+    <p class="rmeta">القائم بالتفتيش: ${esc(bus.inspectorName)} &nbsp;·&nbsp; تاريخ التفتيش: ${fmtDateTime(bus.inspectionDate)} &nbsp;·&nbsp; الحالة: ${esc(computeBusStatus(bus))}</p>
     ${(bus.faults||[]).map((f,i)=>buildFaultDetailBlock(f,i)).join("")}
     ${bus.delivery ? `<p class="rdelivery">✔ تم التسليم للسائق ${esc(bus.delivery.driverName)} بتاريخ ${fmtDateTime(bus.delivery.deliveryDate)} — اعتمد بواسطة ${esc(bus.delivery.approvedBy)}</p>` : ""}
-    <p class="rbus-total">إجمالي الأتوبيس: ${fmtMoney(busTotalCost(bus))}</p>
+    <p class="rbus-total">إجمالي تكلفة الأتوبيس: ${fmtMoney(busTotalCost(bus))}</p>
   </div>`;
 }
+
 const DETAILED_REPORT_CSS = `
     body{font-family:Tahoma,Arial,"Segoe UI",sans-serif;color:#111;padding:24px;max-width:900px;margin:0 auto;}
     h1{font-size:20px;margin-bottom:2px;}
@@ -1869,29 +1951,38 @@ const DETAILED_REPORT_CSS = `
     .rdelivery{font-size:12px;color:#1a7a4c;margin-top:8px;}
     .rgrand{font-size:16px;font-weight:bold;text-align:left;margin-top:10px;padding-top:10px;border-top:2px solid #333;}
     @media print{ body{padding:10px;} }`;
+
 function buildDetailedReportBody(buses){
   const grandTotal = buses.reduce((s,b)=>s+busTotalCost(b),0);
   return `
     <h1>🔧 تقرير تفصيلي — ورشة الأتوبيسات</h1>
-    <p class="rsub">تاريخ الإصدار: ${fmtDateTime(nowISO())} — عدد الأتوبيسات: ${buses.length}</p>
+    <p class="rsub">تاريخ إصدار التقرير: ${fmtDateTime(nowISO())} — عدد الأتوبيسات: ${buses.length}</p>
     ${buses.map(buildBusDetailedReportBlock).join("")}
-    <p class="rgrand">الإجمالي الكلي: ${fmtMoney(grandTotal)}</p>`;
+    <p class="rgrand">الإجمالي الكلي لكل الأتوبيسات المعروضة: ${fmtMoney(grandTotal)}</p>`;
 }
+
 function printDetailedReport(buses){
   buses = (buses||[]).filter(Boolean);
   if(buses.length===0){ alert("لا توجد أتوبيسات لعرض تقرير عنها"); return; }
-  const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير تفصيلي</title><style>${DETAILED_REPORT_CSS}</style></head><body>${buildDetailedReportBody(buses)}</body></html>`;
+  const html = `<!DOCTYPE html>
+  <html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير تفصيلي — ورشة الأتوبيسات</title>
+  <style>${DETAILED_REPORT_CSS}</style></head>
+  <body>${buildDetailedReportBody(buses)}</body></html>`;
   const win = window.open("", "_blank");
-  if(!win){ alert("يرجى السماح بفتح النوافذ المنبثقة"); return; }
-  win.document.write(html); win.document.close();
+  if(!win){ alert("يرجى السماح بفتح النوافذ المنبثقة لعرض التقرير"); return; }
+  win.document.write(html);
+  win.document.close();
   win.onload = () => { win.focus(); win.print(); };
 }
+
+/* تصدير التقرير التفصيلي كملف Word (.doc) — يعتمد على أن Word يفتح ملفات HTML المحفوظة بامتداد .doc
+   بنفس التنسيق والصور، ويعمل بالكامل أوف لاين بدون أي مكتبات خارجية */
 function downloadWordReport(buses, filename){
   buses = (buses||[]).filter(Boolean);
   if(buses.length===0){ alert("لا توجد أتوبيسات لعرض تقرير عنها"); return; }
   const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-  <head><meta charset="UTF-8"/><title>تقرير تفصيلي</title>
-  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+  <head><meta charset="UTF-8"/><title>تقرير تفصيلي — ورشة الأتوبيسات</title>
+  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
   <style>${DETAILED_REPORT_CSS}</style></head>
   <body dir="rtl">${buildDetailedReportBody(buses)}</body></html>`;
   const blob = new Blob(["\ufeff"+html], {type:"application/msword;charset=utf-8"});
@@ -1900,6 +1991,7 @@ function downloadWordReport(buses, filename){
   a.href = url; a.download = filename || ("تقرير-تفصيلي-"+new Date().toISOString().slice(0,10)+".doc");
   a.click(); URL.revokeObjectURL(url);
 }
+
 function reportRows(){
   const rows = [["رقم الأتوبيس","السائق","الحالة","الأقسام","عدد الأعمال","المكتمل","إجمالي التكلفة","تاريخ التفتيش"]];
   DB.buses.forEach(b=>{
@@ -1911,16 +2003,12 @@ function reportRows(){
 
 /* ===================== بدء التشغيل ===================== */
 async function bootApp(){
-  // 1. حمّل البيانات المحلية أولاً (سرعة + شغل بدون نت)
-  try{
-    DB = await loadLocalDB();
-  }catch(e){ DB = normalizeDB({}); }
-  // 2. حاول ترمي المحلي للسحابة لو السحابة فاضية (يتم التعامل معه في onCloudDataReceived)
-  // 3. استرجع الجلسة واعرض
+  app().innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:14px;">⏳ جاري تحميل البيانات...</div>`;
+  DB = await loadDBAsync();
   restoreLoginSession();
   render();
+  initSaveFolder();
 }
-
 bootApp();
 </script>
 </body>
