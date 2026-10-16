@@ -2,17 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1E2227" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ورشة الأتوبيسات" />
 <meta name="format-detection" content="telephone=no" />
-<link id="app-manifest" rel="manifest" />
-<link id="app-icon" rel="icon" />
-<link id="app-touch-icon" rel="apple-touch-icon" />
-<title>نظام إدارة ورشة الأتوبيسات — نسخة موبايل أوف لاين (مع المزامنة)</title>
+<link rel="manifest" href="manifest.json" />
+<title>نظام إدارة ورشة الأتوبيسات</title>
 <style>
   :root{
     --bg:#15181C; --panel:#1E2227; --panel2:#252A30; --border:#323942;
@@ -80,7 +78,6 @@
   .bar-outer{background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
   .bar-inner{background:var(--amber);height:100%;}
   a{color:inherit;}
-  /* ===================== شريط التنقل السفلي (نمط تطبيقات الأندرويد) ===================== */
   .bottom-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--panel);border-top:1px solid var(--border);z-index:30;
     padding:5px 3px calc(5px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(0,0,0,.25);}
   .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -90,7 +87,6 @@
   .bottom-nav-icon{font-size:20px;line-height:1;}
   .bottom-nav-badge{position:absolute;top:2px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;
     font-size:9.5px;font-weight:800;border-radius:999px;padding:1px 5px;min-width:15px;line-height:1.4;}
-  /* مودال يفتح كورقة سفلية على شاشات الموبايل الضيقة */
   @media (max-width:520px){
     .modal-overlay{padding:0;align-items:flex-end;}
     .modal-box{max-width:100%;max-height:94vh;border-radius:18px 18px 0 0;}
@@ -106,50 +102,22 @@
 <div id="app"></div>
 
 <script>
-/* ===================== إعداد التطبيق كواجهة موبايل (أيقونة + بيانات الإضافة للشاشة الرئيسية) ===================== */
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   render();
 });
+
 function triggerInstallApp(){
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(() => { deferredPrompt = null; render(); });
   } else {
-    alert("لتثبيت التطبيق على هاتفك، اضغط على قائمة المتصفح (النقاط الثلاث بالأعلى) ثم اختر 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
+    alert("لتثبيت التطبيق على هاتفك: اضغط على خيارات المتصفح (النقاط الثلاث بالأعلى) ثم اختر 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
   }
 }
 
-(function setupMobileAppShell(){
-  try{
-    const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-      <rect width="200" height="200" rx="42" fill="#F2A93B"/>
-      <text x="100" y="140" font-size="118" text-anchor="middle" font-family="Arial, sans-serif">🔧</text>
-    </svg>`;
-    const iconURL = "data:image/svg+xml," + encodeURIComponent(iconSVG);
-    const iconEl = document.getElementById("app-icon"); if(iconEl){ iconEl.href = iconURL; iconEl.type = "image/svg+xml"; }
-    const touchIconEl = document.getElementById("app-touch-icon"); if(touchIconEl) touchIconEl.href = iconURL;
-    const manifest = {
-      name: "نظام إدارة ورشة الأتوبيسات",
-      short_name: "ورشة الأتوبيسات",
-      start_url: ".", scope: ".", display: "standalone",
-      orientation: "portrait",
-      background_color: "#15181C", theme_color: "#1E2227",
-      dir: "rtl", lang: "ar",
-      icons: [
-        {src: iconURL, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable"},
-        {src: iconURL, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable"},
-      ],
-    };
-    const manifestBlob = new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"});
-    const manifestEl = document.getElementById("app-manifest");
-    if(manifestEl) manifestEl.href = URL.createObjectURL(manifestBlob);
-  }catch(e){}
-})();
-
-/* ===================== ثوابت ===================== */
 const DEPARTMENTS = ["سمكرة","دهان","كهرباء","كاوتش","زجاج"];
 const ACCOUNTS = [
   {username:"admin",password:"admin123",role:"admin",label:"مدير الورشة"},
@@ -297,7 +265,7 @@ function idbPutDB(value){
   return mainIdbOpen().then(db => new Promise((resolve,reject)=>{
     const tx = db.transaction("kv","readwrite");
     tx.objectStore("kv").put(value, "db");
-    tx.oncomplete = () => resolve(true);
+    tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   }));
 }
@@ -335,94 +303,12 @@ function saveDB(db){
   if(!IDB_SUPPORTED){
     try{ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
     catch(e){ alert("تعذر حفظ البيانات محليًا. الذاكرة المحلية ممتلئة."); return false; }
-    writeDBToFolder(db);
     return true;
   }
   queueDBWrite(db);
-  writeDBToFolder(db);
   return true;
 }
 let DB = null;
-
-const FS_SUPPORTED = ('showDirectoryPicker' in window);
-let saveDirHandle = null;
-let saveDirStatus = "غير مفعّل";
-const FS_FILE_NAME = "بيانات-ورشة-الأتوبيسات.json";
-
-function fsOpenHandleDB(){
-  return new Promise((resolve,reject)=>{
-    const req = indexedDB.open("workshop-fs-handle-db", 1);
-    req.onupgradeneeded = () => { req.result.createObjectStore("handles"); };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-async function fsStoreHandle(handle){
-  try{
-    const db = await fsOpenHandleDB();
-    await new Promise((resolve,reject)=>{
-      const tx = db.transaction("handles","readwrite");
-      tx.objectStore("handles").put(handle,"saveDir");
-      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
-    });
-  }catch(e){}
-}
-async function fsLoadHandle(){
-  try{
-    const db = await fsOpenHandleDB();
-    return await new Promise((resolve,reject)=>{
-      const tx = db.transaction("handles","readonly");
-      const req = tx.objectStore("handles").get("saveDir");
-      req.onsuccess = () => resolve(req.result||null);
-      req.onerror = () => reject(req.error);
-    });
-  }catch(e){ return null; }
-}
-async function writeDBToFolder(db){
-  if(!saveDirHandle) return;
-  try{
-    const perm = await saveDirHandle.queryPermission({mode:"readwrite"});
-    if(perm!=="granted"){ saveDirStatus = "يحتاج إعادة ربط"; return; }
-    const fileHandle = await saveDirHandle.getFileHandle(FS_FILE_NAME, {create:true});
-    const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(db, null, 2));
-    await writable.close();
-    saveDirStatus = "متصل: " + saveDirHandle.name;
-  }catch(e){}
-}
-async function chooseSaveFolder(){
-  if(!FS_SUPPORTED){ alert("متاحة على متصفح Chrome أو Edge"); return; }
-  try{
-    const handle = await window.showDirectoryPicker();
-    const perm = await handle.requestPermission({mode:"readwrite"});
-    if(perm!=="granted") return;
-    saveDirHandle = handle;
-    saveDirStatus = "متصل: " + handle.name;
-    await fsStoreHandle(handle);
-    await writeDBToFolder(DB);
-    renderReportsOnly();
-  }catch(e){}
-}
-async function relinkSaveFolder(){
-  if(!saveDirHandle) return;
-  try{
-    const perm = await saveDirHandle.requestPermission({mode:"readwrite"});
-    saveDirStatus = perm==="granted" ? ("متصل: "+saveDirHandle.name) : "يحتاج إعادة ربط";
-    if(perm==="granted") await writeDBToFolder(DB);
-  }catch(e){}
-  renderReportsOnly();
-}
-async function initSaveFolder(){
-  if(!FS_SUPPORTED) return;
-  const handle = await fsLoadHandle();
-  if(!handle) return;
-  saveDirHandle = handle;
-  try{
-    const perm = await handle.queryPermission({mode:"readwrite"});
-    saveDirStatus = perm==="granted" ? ("متصل: "+handle.name) : "يحتاج إعادة ربط";
-  }catch(e){}
-  if(route==="reports") renderReportsOnly();
-}
 
 let currentUser = null;
 let route = "login";
@@ -522,8 +408,7 @@ function buildTopbar(){
         : 0;
       return `<button class="bottom-nav-item ${route===t.id?"active":""}" onclick="goTab('${t.id}')">
         <span class="bottom-nav-icon">${TAB_ICONS[t.id]||"•"}</span>
-        <span>${t.label}</span>
-        ${badgeCount>0?`<span class="bottom-nav-badge">${badgeCount}</span>`:""}
+        <span>${t.label}</span>${badgeCount>0?`<span class="bottom-nav-badge">${badgeCount}</span>`:""}
       </button>`;
     }).join("")}
   </div>`;
@@ -539,7 +424,7 @@ function buildTopbar(){
     </div>
   </div>` + bottomNav;
 }
-
+<script>
 function buildRoute(){
   if(!currentUser) return buildLogin();
   let body = "";
@@ -653,6 +538,7 @@ function buildNewBus(){
     ${buildMyRecentSubmissions()}
   </div>`;
 }
+
 function buildMyRecentSubmissions(){
   const mine = [];
   DB.buses.forEach(b=>b.faults.forEach(f=>{ if(f.createdBy===currentUser.label) mine.push({bus:b, fault:f}); }));
@@ -675,6 +561,7 @@ function buildBusesList(){
     <div id="bl-results">${buildBusesListResults("")}</div>
   </div>`;
 }
+
 function buildBusesListResults(q){
   const list = DB.buses.filter(b=>!q || b.busNumber.includes(q) || b.driverName.includes(q))
     .sort((a,b)=> new Date(b.inspectionDate)-new Date(a.inspectionDate));
@@ -698,7 +585,7 @@ function buildBusDetailModal(busId){
     <div class="modal-box wide">
       <div class="modal-head"><div class="bold">أتوبيس ${esc(bus.busNumber)}</div>
         <div class="row gap2 center no-print">
-          <button class="btn btn-subtle" onclick="printDetailedReport([DB.buses.find(b=>b.id==='${bus.id}')])">🖨 تقرير تفصيلي PDF</button>
+          <button class="btn btn-subtle" onclick="printDetailedReport([DB.buses.find(b=>b.id==='${bus.id}')])">🖨 تقرير PDF</button>
           <button class="btn btn-subtle" onclick='downloadWordReport([DB.buses.find(b=>b.id==="${bus.id}")],"تقرير-أتوبيس-${esc(bus.busNumber)}.doc")'>📄 Word</button>
           <button class="icon-btn" onclick="openBusId=null;render();">✕</button>
         </div>
@@ -726,7 +613,7 @@ function buildBusDetailModal(busId){
               ${f.status===FAULT_STATUS.DONE?`<p class="txt-xs bold green" style="margin-top:6px;">إجمالي التكلفة: ${fmtMoney(faultTotal(f))}</p>`:""}
               ${currentUser.role==="admin" && f.status!==FAULT_STATUS.PENDING_APPROVAL?`
               <div class="row gap2" style="margin-top:6px;">
-                <button class="btn btn-subtle" onclick="openBusId=null; openTask={busId:'${bus.id}',faultId:'${f.id}'}; workDraft=null; render();">✏ تعديل المهمة / الخامات / السعر</button>
+                <button class="btn btn-subtle" onclick="openBusId=null; openTask={busId:'${bus.id}',faultId:'${f.id}'}; workDraft=null; render();">✏ تعديل المهمة / السعر</button>
                 <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${f.id}')">🗑 حذف المهمة</button>
               </div>`:""}
             </div>`).join("")}
@@ -758,11 +645,12 @@ function buildApprovalsAdmin(){
           <span class="txt-xs bold sub">+ إضافة مهمة إصلاح أخرى لنفس الأتوبيس</span>
           <textarea id="apn-desc-${bus.id}" class="input" rows="2" placeholder="وصف مهمة الإصلاح الجديدة"></textarea>
           <select id="apn-dept-${bus.id}" class="input">${DEPARTMENTS.map(dp=>`<option value="${dp}">${dp}</option>`).join("")}</select>
-          <button class="btn btn-subtle" onclick="addApprovedFaultToBus('${bus.id}')">+ إضافة مهمة الإصلاح</button>
+          <button class="btn btn-subtle" onclick="addApprovedFaultToBus('${bus.id}')">+ إضافة المهمة</button>
         </div>
       </div>`).join("")}
   </div>`;
 }
+
 function buildFaultApprovalCard(bus, f){
   return `
   <div class="panel2 rounded p3 col gap2">
@@ -780,6 +668,7 @@ function buildFaultApprovalCard(bus, f){
   </div>`;
 }
 function renderApprovalsOnly(){ const el = document.getElementById("approvals-root"); if(el) el.outerHTML = buildApprovalsAdmin(); }
+
 function approveFault(busId, faultId){
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
   const f = bus.faults.find(x=>x.id===faultId); if(!f) return;
@@ -793,6 +682,7 @@ function approveFault(busId, faultId){
   if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
+
 function rejectFault(busId, faultId){
   if(!confirm("هل تريد حذف/رفض مهمة الإصلاح هذه؟")) return;
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
@@ -802,6 +692,7 @@ function rejectFault(busId, faultId){
   if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
+
 function adminDeleteFault(busId, faultId){
   if(currentUser.role!=="admin") return;
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
@@ -814,6 +705,7 @@ function adminDeleteFault(busId, faultId){
   if(openTask && openTask.faultId===faultId){ openTask=null; workDraft=null; }
   render();
 }
+
 function addApprovedFaultToBus(busId){
   const bus = DB.buses.find(b=>b.id===busId); if(!bus) return;
   const descEl = document.getElementById("apn-desc-"+busId);
@@ -834,24 +726,29 @@ function addApprovedFaultToBus(busId){
 function buildQueue(dept){
   return `<div id="queue-root">${buildQueueInner(dept)}</div>`;
 }
+
 function buildAdminQueue(){
   return `<div class="max-w col gap3">
     <div class="row wrap gap1">${DEPARTMENTS.map(d=>`<button class="tab ${adminQueueDept===d?"active":""}" onclick="adminQueueDept='${d}';queueSearch='';render();">${d}</button>`).join("")}</div>
     ${buildQueueInner(adminQueueDept)}
   </div>`;
 }
+
 function setQueueFilter(v){ deptQueueFilter = v; render(); }
 function currentQueueDept(){ return currentUser.role==="admin" ? adminQueueDept : currentUser.role; }
+
 function collectDeptTasks(dept){
   const tasks = [];
   DB.buses.forEach(b=>b.faults.forEach(f=>{ if(f.department===dept && f.status!==FAULT_STATUS.PENDING_APPROVAL) tasks.push({bus:b,fault:f}); }));
   return tasks;
 }
+
 function queueSetSearch(v){
   queueSearch = v;
   const el = document.getElementById("queue-results");
   if(el) el.outerHTML = buildQueueResults(collectDeptTasks(currentQueueDept()));
 }
+
 function buildQueueResults(tasks){
   const shown = tasks.filter(t=>
     (deptQueueFilter==="الكل" || (deptQueueFilter==="نشطة" ? t.fault.status!==FAULT_STATUS.DONE : t.fault.status===FAULT_STATUS.DONE))
@@ -860,12 +757,13 @@ function buildQueueResults(tasks){
   if(shown.length===0) return `<div id="queue-results"><p class="txt-sm sub" style="text-align:center;padding:30px 0;">لا توجد مهام مطابقة</p></div>`;
   return `<div id="queue-results" class="col gap2">
       ${shown.map(t=>`<div class="card-btn" onclick="openTask={busId:'${t.bus.id}',faultId:'${t.fault.id}'};render();">
-        <div><div class="txt-sm bold">أتوبيس ${esc(t.bus.busNumber)} —${esc(t.bus.driverName)}</div>
+        <div><div class="txt-sm bold">أتوبيس ${esc(t.bus.busNumber)} — ${esc(t.bus.driverName)}</div>
         <div class="txt-xs sub" style="margin-top:2px;">${esc(t.fault.description)}</div>
         <div class="txt-xs sub" style="margin-top:2px;">استلام البلاغ: ${fmtDateTime(t.fault.receivedDate)}</div></div>${badge(t.fault.status)}
       </div>`).join("")}
     </div>`;
 }
+
 function buildQueueInner(dept){
   const tasks = collectDeptTasks(dept);
   return `
@@ -885,6 +783,7 @@ function materialsCatalog(){
 }
 
 function openWorkModal(busId, faultId){ openTask = {busId, faultId}; render(); }
+
 function syncWorkDraftFromDOM(){
   if(!workDraft) return;
   const g = id => document.getElementById(id);
@@ -896,10 +795,12 @@ function syncWorkDraftFromDOM(){
   if(g("wf-labor")) workDraft.laborCost = g("wf-labor").value;
   if(g("wf-notes")) workDraft.notes = g("wf-notes").value;
 }
+
 function renderWorkModalOnly(){
   const overlay = document.getElementById("fw-overlay");
   if(overlay) overlay.outerHTML = buildFaultWorkModal(openTask.busId, openTask.faultId);
 }
+
 function wpAddRow(){ syncWorkDraftFromDOM(); workDraft.spareParts.push({name:"",price:"",qty:""}); renderWorkModalOnly(); }
 function wpRemoveRow(i){ syncWorkDraftFromDOM(); workDraft.spareParts.splice(i,1); renderWorkModalOnly(); }
 function wmAddRow(){ syncWorkDraftFromDOM(); workDraft.materials.push({name:"",customName:"",price:"",qty:"",supplyRequestId:null}); renderWorkModalOnly(); }
@@ -907,12 +808,14 @@ function wmRemoveRow(i){ syncWorkDraftFromDOM(); workDraft.materials.splice(i,1)
 function wmNameChanged(i, v){ syncWorkDraftFromDOM(); workDraft.materials[i].name = v; renderWorkModalOnly(); }
 function wtAddRow(){ syncWorkDraftFromDOM(); workDraft.technicians.push({name:"",role:""}); renderWorkModalOnly(); }
 function wtRemoveRow(i){ syncWorkDraftFromDOM(); workDraft.technicians.splice(i,1); renderWorkModalOnly(); }
+
 async function wAddAfterPhotos(input){
   syncWorkDraftFromDOM();
   const files = Array.from(input.files||[]).slice(0, MAX_PHOTOS-workDraft.photosAfter.length);
   for(const file of files){ try{ workDraft.photosAfter.push(await compressImage(file)); }catch(e){} }
   renderWorkModalOnly();
 }
+
 function wRemoveAfterPhoto(j){ syncWorkDraftFromDOM(); workDraft.photosAfter.splice(j,1); renderWorkModalOnly(); }
 
 function canRequestMaterialRow(row){
@@ -920,6 +823,7 @@ function canRequestMaterialRow(row){
   const req = DB.supplyRequests.find(r=>r.id===row.supplyRequestId);
   return !req || req.status===SUPPLY_STATUS.REJECTED;
 }
+
 function materialRowRequestBadge(row){
   if(!row.supplyRequestId) return "";
   const req = DB.supplyRequests.find(r=>r.id===row.supplyRequestId);
@@ -927,6 +831,7 @@ function materialRowRequestBadge(row){
   const [c,bg] = supplyStatusColor(req.status);
   return `<span class="badge" style="color:${c};background:${bg};">📦 ${esc(req.status)}</span>`;
 }
+
 function requestMaterialFromStore(i){
   syncWorkDraftFromDOM();
   const row = workDraft.materials[i];
@@ -957,6 +862,7 @@ function wStart(){
   touch(f); touch(bus);
   saveDB(DB); workDraft = JSON.parse(JSON.stringify(f)); renderWorkModalOnly();
 }
+
 function wSaveProgress(finish){
   syncWorkDraftFromDOM();
   const bus = DB.buses.find(b=>b.id===openTask.busId);
@@ -1084,11 +990,13 @@ function buildDelivery(){
     </div>`}
   </div>`;
 }
+
 function dvChanged(){
   const id = document.getElementById("dv-bus").value;
   const bus = DB.buses.find(b=>b.id===id);
   document.getElementById("dv-info").innerHTML = bus ? `<div class="panel2 rounded p3 txt-xs sub">الأقسام التي أنهت العمل: <span class="bold" style="color:var(--text)">${busDepts(bus).join("، ")}</span></div>` : "";
 }
+
 function submitDelivery(){
   const id = document.getElementById("dv-bus").value;
   const approver = document.getElementById("dv-approver").value.trim();
@@ -1109,6 +1017,7 @@ function emptySupplyRequest(){
     decidedAt:null, decidedBy:"", rejectReason:"", dispensedAt:null, dispensedBy:"", recipientName:"", msg:""};
 }
 function resetSupplyDraft(){ supplyDraft = emptySupplyRequest(); }
+
 function syncSupplyDraftFromDOM(){
   if(!supplyDraft) return;
   const g = id => document.getElementById(id);
@@ -1151,6 +1060,7 @@ function supplyStatusColor(status){
   if(status===SUPPLY_STATUS.DISPENSED) return ["#3FCF8E","#123A2C"];
   return ["#98A2AE","#2A2F35"];
 }
+
 function buildSupplyRequestCard(r, context){
   const [c,bg] = supplyStatusColor(r.status);
   return `<div class="panel2 rounded p3 col gap1">
@@ -1223,7 +1133,6 @@ function buildSuppliesAdmin(){
   const others = all.filter(r=>r.status!==SUPPLY_STATUS.PENDING);
   const allStock = [...DB.stockAdditions].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   const pendingStock = allStock.filter(s=>s.status===SUPPLY_STATUS.PENDING);
-  const othersStock = allStock.filter(s=>s.status!==SUPPLY_STATUS.PENDING);
   return `
   <div id="supplies-root" class="max-w col gap4">
     <div class="col gap2">
@@ -1243,12 +1152,15 @@ function buildSuppliesAdmin(){
     </div>
   </div>`;
 }
+
 function renderSuppliesOnly(){ const el = document.getElementById("supplies-root"); if(el) el.outerHTML = buildSuppliesAdmin(); }
+
 function approveSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   r.status = SUPPLY_STATUS.APPROVED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label;
   touch(r); saveDB(DB); renderSuppliesOnly();
 }
+
 function rejectSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   r.status = SUPPLY_STATUS.REJECTED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label;
@@ -1257,7 +1169,6 @@ function rejectSupplyRequest(id){
 
 function buildCustodianView(){
   const approved = DB.supplyRequests.filter(r=>r.status===SUPPLY_STATUS.APPROVED).sort((a,b)=>new Date(a.decidedAt)-new Date(b.decidedAt));
-  const dispensed = [...DB.supplyRequests].filter(r=>r.status===SUPPLY_STATUS.DISPENSED).sort((a,b)=>new Date(b.dispensedAt)-new Date(a.dispensedAt)).slice(0,25);
   return `
   <div id="custodian-root" class="max-w col gap4">
     ${buildStockAdditionForm()}
@@ -1268,7 +1179,9 @@ function buildCustodianView(){
     </div>
   </div>`;
 }
+
 function renderCustodianOnly(){ const el = document.getElementById("custodian-root"); if(el) el.outerHTML = buildCustodianView(); }
+
 function dispenseSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   const nameInput = document.getElementById("cust-recipient-"+id);
@@ -1285,6 +1198,7 @@ function emptyStockAddition(){
     decidedAt:null, decidedBy:"", rejectReason:"", msg:""};
 }
 function resetStockDraft(){ stockDraft = emptyStockAddition(); }
+
 function syncStockDraftFromDOM(){
   if(!stockDraft) return;
   const g = id => document.getElementById(id);
@@ -1336,10 +1250,10 @@ function buildStockAdditionCard(s, context){
       </div>`:""}
   </div>`;
 }
+
 function buildStockAdditionForm(){
   if(!stockDraft) resetStockDraft();
   const d = stockDraft;
-  const myDocs = [...DB.stockAdditions].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,15);
   const msgHtml = d.msg ? `<p class="txt-sm bold" style="text-align:center;color:${d.msg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(d.msg.split(":").slice(1).join(":"))}</p>` : "";
   return `
   <div id="stockform-root" class="col gap3">
@@ -1370,11 +1284,13 @@ function buildStockAdditionForm(){
     </div>
   </div>`;
 }
+
 function approveStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   s.status = SUPPLY_STATUS.APPROVED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label;
   touch(s); saveDB(DB); renderSuppliesOnly();
 }
+
 function rejectStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   s.status = SUPPLY_STATUS.REJECTED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label;
@@ -1399,6 +1315,7 @@ function computeInventoryBalance(){
   });
   return balance;
 }
+
 function buildInventoryPanel(){
   const balance = computeInventoryBalance();
   const names = Object.keys(balance).sort((a,b)=>a.localeCompare("ar"));
@@ -1422,13 +1339,179 @@ function exportCSV(rows, filename){
   const a = document.createElement("a"); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
 }
 
+function mergeArraysById(localArr, incomingArr){
+  const map = new Map((localArr||[]).map(x=>[x.id,x]));
+  let added=0, updated=0;
+  (incomingArr||[]).forEach(inc=>{
+    const loc = map.get(inc.id);
+    if(!loc){ map.set(inc.id, inc); added++; return; }
+    const lt = new Date(loc.updatedAt||0).getTime();
+    const it = new Date(inc.updatedAt||0).getTime();
+    if(it > lt){ map.set(inc.id, inc); updated++; }
+  });
+  return {list: Array.from(map.values()), added, updated};
+}
+
+function mergeBusesArrays(localBuses, incomingBuses, deletedFaultIds){
+  const map = new Map((localBuses||[]).map(b=>[b.id,b]));
+  let busesAdded=0, busesUpdated=0, faultsAdded=0, faultsUpdated=0;
+  (incomingBuses||[]).forEach(incBus=>{
+    const cleanFaults = (incBus.faults||[]).filter(f=>!deletedFaultIds[f.id]);
+    const locBus = map.get(incBus.id);
+    if(!locBus){
+      map.set(incBus.id, {...incBus, faults: cleanFaults});
+      busesAdded++; faultsAdded += cleanFaults.length;
+      return;
+    }
+    const lt = new Date(locBus.updatedAt||0).getTime();
+    const it = new Date(incBus.updatedAt||0).getTime();
+    const winnerIsIncoming = it > lt;
+    const target = winnerIsIncoming ? {...incBus} : {...locBus};
+    if(winnerIsIncoming) busesUpdated++;
+    const faultMap = new Map((locBus.faults||[]).map(f=>[f.id,f]));
+    cleanFaults.forEach(incF=>{
+      const locF = faultMap.get(incF.id);
+      if(!locF){ faultMap.set(incF.id, incF); faultsAdded++; return; }
+      const flt = new Date(locF.updatedAt||0).getTime();
+      const fit = new Date(incF.updatedAt||0).getTime();
+      if(fit > flt){ faultMap.set(incF.id, incF); faultsUpdated++; }
+    });
+    Array.from(faultMap.keys()).forEach(fid=>{ if(deletedFaultIds[fid]) faultMap.delete(fid); });
+    target.faults = Array.from(faultMap.values());
+    map.set(incBus.id, target);
+  });
+  return {list: Array.from(map.values()), busesAdded, busesUpdated, faultsAdded, faultsUpdated};
+}
+
+function mergeDB(local, incoming){
+  const deletedFaultIds = {...(local.meta&&local.meta.deletedFaultIds||{}), ...(incoming.meta&&incoming.meta.deletedFaultIds||{})};
+  const busesR = mergeBusesArrays(local.buses, incoming.buses, deletedFaultIds);
+  const supR = mergeArraysById(local.supplyRequests, incoming.supplyRequests);
+  const stkR = mergeArraysById(local.stockAdditions, incoming.stockAdditions);
+  const merged = {
+    buses: busesR.list,
+    supplyRequests: supR.list,
+    stockAdditions: stkR.list,
+    settings: local.settings,
+    meta: {deletedFaultIds},
+  };
+  const summary = {
+    busesAdded: busesR.busesAdded, busesUpdated: busesR.busesUpdated,
+    faultsAdded: busesR.faultsAdded, faultsUpdated: busesR.faultsUpdated,
+    supplyAdded: supR.added, supplyUpdated: supR.updated,
+    stockAdded: stkR.added, stockUpdated: stkR.updated,
+  };
+  return {merged, summary};
+}
+
+function defaultDeviceName(){ return (currentUser && currentUser.inspector) ? currentUser.label : ""; }
+
+function exportSyncFile(){
+  const dn = getDeviceName() || defaultDeviceName();
+  if(!dn){ alert("اكتب اسماً لهذا الجهاز قبل التصدير."); return; }
+  const payload = {
+    __syncMeta: {deviceName: dn, exportedAt: nowISO(), app: "ورشة الأتوبيسات", syncVersion: 1},
+    buses: DB.buses, supplyRequests: DB.supplyRequests, stockAdditions: DB.stockAdditions,
+    settings: DB.settings, meta: DB.meta,
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const stamp = new Date().toISOString().slice(0,16).replace("T","_").replace(":","-");
+  const safeName = dn.replace(/[\\/:*?"<>|]/g,"-");
+  const a = document.createElement("a");
+  a.href = url; a.download = `مزامنة-${safeName}-${stamp}.json`; a.click(); URL.revokeObjectURL(url);
+}
+
+function mergeSyncFile(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed.buses) throw new Error("bad");
+      if(!parsed.supplyRequests) parsed.supplyRequests = [];
+      if(!parsed.stockAdditions) parsed.stockAdditions = [];
+      if(!parsed.meta) parsed.meta = {deletedFaultIds:{}};
+      const fromName = parsed.__syncMeta ? parsed.__syncMeta.deviceName : "جهاز غير معروف";
+      const exportedAt = parsed.__syncMeta ? fmtDateTime(parsed.__syncMeta.exportedAt) : "—";
+      if(!confirm(`دمج التحديثات القادمة من:\n« ${fromName} »\nتاريخ التصدير: ${exportedAt}؟`)) return;
+      const {merged, summary} = mergeDB(DB, parsed);
+      DB = merged;
+      if(!saveDB(DB)) return;
+      alert(`تم الدمج بنجاح ✓`);
+      render();
+    }catch(e){ alert("ملف المزامنة غير صالح"); }
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+
+function saveDeviceNameFromInput(){
+  const el = document.getElementById("dev-name-input");
+  if(el) setDeviceName(el.value);
+  if(route==="reports") renderReportsOnly(); else render();
+}
+
+function buildSyncPanel(){
+  const insp = !!(currentUser && currentUser.inspector);
+  const ph = insp ? ("مثال: موبايل " + currentUser.label) : "مثال: موبايل السمكرة";
+  return `
+    <div class="panel rounded-lg p4 col gap3 no-print" style="border-color:var(--amber);">
+      <div class="row between center wrap gap2">
+        <div class="txt-sm bold amber">🔄 مزامنة العمل بين الأجهزة (أوف لاين)</div>
+      </div>
+      <label class="field"><span>اسم هذا الجهاز</span>
+        <div class="row gap2">
+          <input id="dev-name-input" class="input" placeholder="${esc(ph)}" value="${esc(getDeviceName())}"/>
+          <button class="btn btn-subtle" onclick="saveDeviceNameFromInput()">حفظ</button>
+        </div>
+      </label>
+      <div class="row gap2 wrap">
+        <button class="btn btn-primary" onclick="exportSyncFile()">⬇ تصدير ملف مزامنة</button>
+        <label class="btn btn-subtle" style="cursor:pointer;">⬆ استيراد ودمج ملف مزامنة<input type="file" style="display:none" onchange="mergeSyncFile(this)"/></label>
+      </div>
+    </div>`;
+}
+
+function buildSyncTab(){
+  return `
+  <div id="sync-root" class="max-w col gap4">
+    <div class="panel rounded p3 no-print" id="storage-usage-box"></div>
+    ${buildSyncPanel()}
+  </div>`;
+}
+
+async function refreshStorageUsageOnly(){
+  const el = document.getElementById("storage-usage-box");
+  if(!el) return;
+  if(!navigator.storage || !navigator.storage.estimate){ el.innerHTML = ""; return; }
+  try{
+    const {usage, quota} = await navigator.storage.estimate();
+    if(!quota){ el.innerHTML = ""; return; }
+    const pct = Math.min(100, Math.round((usage/quota)*100));
+    el.innerHTML = buildStorageUsageBar(usage, quota, pct);
+  }catch(e){ el.innerHTML = ""; }
+}
+
+function buildStorageUsageBar(usage, quota, pct){
+  const mb = n => (n/1024/1024).toFixed(1);
+  const color = pct>85 ? "var(--red)" : (pct>60 ? "var(--amber)" : "var(--green)");
+  return `<div class="col gap1">
+    <div class="row between wrap gap1 txt-xs sub"><span>مساحة التخزين المستخدمة</span><span class="bold" style="color:${color}">${mb(usage)} م.ب من ${mb(quota)} م.ب (${pct}%)</span></div>
+    <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${color};"></div></div>
+  </div>`;
+}
+
 function reportsSetQ(v){ reportsQ = v; renderReportsOnly(); }
 function reportsSetDept(v){ reportsDept = v; renderReportsOnly(); }
 function reportsSetStatus(v){ reportsStatus = v; renderReportsOnly(); }
+
 function renderReportsOnly(){
   const root = document.getElementById("reports-root");
   if(root) root.outerHTML = buildReports(currentUser && DEPARTMENTS.includes(currentUser.role) ? currentUser.role : null);
+  refreshStorageUsageOnly();
 }
+
 function buildReports(restrictDept){
   const filtered = DB.buses.filter(b=>{
     const deps = busDepts(b);
@@ -1438,14 +1521,14 @@ function buildReports(restrictDept){
     if(reportsStatus!=="الكل" && computeBusStatus(b)!==reportsStatus) return false;
     return true;
   });
-  const deptTotals = {}; DEPARTMENTS.forEach(d=>deptTotals[d]=0);
-  DB.buses.forEach(b=>b.faults.forEach(f=>{ deptTotals[f.department]=(deptTotals[f.department]||0)+faultTotal(f); }));
   const grandTotal = filtered.reduce((s,b)=>s+busTotalCost(b),0);
   const readyOrDelivered = filtered.filter(b=>{const s=computeBusStatus(b); return s===BUS_STATUS.READY||s===BUS_STATUS.DELIVERED;}).length;
   lastFilteredBuses = filtered;
 
   return `
   <div id="reports-root" class="max-w col gap4">
+    <div class="panel rounded p3 no-print" id="storage-usage-box"></div>
+    ${buildSyncPanel()}
     <div class="row wrap gap2 center no-print">
       <input class="input grow" style="min-width:180px;" placeholder="بحث بالسائق أو رقم الأتوبيس" value="${esc(reportsQ)}" oninput="reportsSetQ(this.value)"/>
       ${!restrictDept?`<select class="input" style="width:140px;" onchange="reportsSetDept(this.value)">
@@ -1539,7 +1622,6 @@ async function bootApp(){
   DB = await loadDBAsync();
   restoreLoginSession();
   render();
-  initSaveFolder();
 }
 bootApp();
 </script>
