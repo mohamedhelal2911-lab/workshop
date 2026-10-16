@@ -622,6 +622,10 @@ function submitNewBus(){
   resetDraftBus();
   draftBus.msg = autoApprove ? "ok:تم تسجيل الأتوبيس بنجاح ✓" : "ok:تم إرسال الأتوبيس ومهام الإصلاح للمدير، بانتظار الاعتماد ✓";
   renderNewBusOnly();
+  // تأكيد واضح للمستخدم بعد الضغط على حفظ الأتوبيس
+  alert(autoApprove ? "تم الحفظ بنجاح ✓
+تم تسجيل الأتوبيس." : "تم الحفظ والإرسال بنجاح ✓
+تم إرسال الأتوبيس ومهام الإصلاح للمدير، بانتظار الاعتماد.");
 }
 function notifyManagerNewBusPending(bus){
   try{
