@@ -325,34 +325,42 @@ function idbPutDB(value){
   }));
 }
 async function loadLocalDB(){
-  if(!IDB_SUPPORTED){
-    try{ const raw = localStorage.getItem(DB_KEY); return normalizeDB(raw?JSON.parse(raw):{}); }
-    catch(e){ return normalizeDB({}); }
-  }
-  try{
-    const existing = await idbGetDB();
-    if(existing) return normalizeDB(existing);
-  }catch(e){ console.error("IndexedDB read failed", e); }
+  // ابدأ بالنسخة المتزامنة في localStorage حتى لا تضيع آخر إضافة عند تحديث الصفحة بسرعة.
+  // ثم استخدم IndexedDB كنسخة محلية إضافية/احتياطية.
   try{
     const raw = localStorage.getItem(DB_KEY);
     if(raw){
-      const migrated = normalizeDB(JSON.parse(raw));
-      await idbPutDB(migrated);
-      localStorage.removeItem(DB_KEY);
-      return migrated;
+      const localCopy = normalizeDB(JSON.parse(raw));
+      if(IDB_SUPPORTED) idbPutDB(localCopy).catch(e=>console.error("IDB backup restore failed", e));
+      return localCopy;
     }
-  }catch(e){}
+  }catch(e){ console.error("localStorage read failed", e); }
+  if(IDB_SUPPORTED){
+    try{
+      const existing = await idbGetDB();
+      if(existing){
+        const normalized = normalizeDB(existing);
+        try{ localStorage.setItem(DB_KEY, JSON.stringify(normalized)); }catch(e){}
+        return normalized;
+      }
+    }catch(e){ console.error("IndexedDB read failed", e); }
+  }
   return normalizeDB({});
 }
 
-/* حفظ: Firebase + IndexedDB */
+/* حفظ محلي متزامن + IndexedDB + Firebase */
 let dbWriteQueue = Promise.resolve();
 function saveDB(db){
   DB = normalizeDB(db);
-  // حفظ محلي
-  if(IDB_SUPPORTED){ dbWriteQueue = dbWriteQueue.then(()=>idbPutDB(DB)).catch(e=>console.error("IDB save failed", e)); }
-  else { try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){} }
-  // حفظ سحابي
+  // localStorage يكتب بشكل متزامن، فيقل احتمال ضياع آخر تسجيل عند Refresh سريع.
+  try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
+  catch(e){ console.error("localStorage save failed", e); }
+  // IndexedDB نسخة محلية إضافية، مع تسلسل عمليات الكتابة.
+  if(IDB_SUPPORTED){
+    const snapshot = JSON.parse(JSON.stringify(DB));
+    dbWriteQueue = dbWriteQueue.then(()=>idbPutDB(snapshot)).catch(e=>console.error("IDB save failed", e));
+  }
+  // حفظ سحابي إذا كان Firebase متصلًا ومهيأً.
   if(window.cloudSave){
     lastCloudJson = JSON.stringify(DB);
     window.cloudSave(DB);
@@ -388,7 +396,8 @@ window.onCloudDataReceived = function(remoteData, isFirstEmpty){
   }
   DB = normalizeDB(remoteData);
   lastCloudJson = remoteJson;
-  if(IDB_SUPPORTED) idbPutDB(DB).catch(()=>{});
+  try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){ console.error("localStorage cloud-cache save failed", e); }
+  if(IDB_SUPPORTED) idbPutDB(JSON.parse(JSON.stringify(DB))).catch(e=>console.error("IDB cloud-cache save failed", e));
   render();
 };
 /* ===================== حالة عامة ===================== */
