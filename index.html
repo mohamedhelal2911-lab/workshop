@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icons/icon-192.png" />
 <link rel="apple-touch-icon" href="icons/icon-192.png" />
-<title>نظام إدارة ورشة الأتوبيسات</title>
+<title>نظام إدارة ورشة الأتوبيسات — نسخة موحدة</title>
 <style>
   :root{
     --bg:#15181C; --panel:#1E2227; --panel2:#252A30; --border:#323942;
@@ -52,12 +52,14 @@
   .itable{width:100%;border-collapse:collapse;font-size:12px;}
   .itable th,.itable td{border:1px solid var(--border);padding:6px 8px;text-align:right;}
   .itable th{background:var(--panel2);}
+  .card{padding:14px;border-radius:14px;}
   .card-btn{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:right;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;color:inherit;min-height:44px;}
   .thumb{width:60px;height:60px;object-fit:cover;border-radius:10px;}
   .thumb-sm{width:52px;height:52px;object-fit:cover;border-radius:8px;}
   .thumb-wrap{position:relative;display:inline-block;}
   .thumb-x{position:absolute;top:0;left:0;background:rgba(0,0,0,.7);border-radius:0 0 8px 0;padding:5px 7px;cursor:pointer;color:#fff;font-size:13px;line-height:1;}
   .photo-add{width:60px;height:60px;border-radius:12px;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--sub);cursor:pointer;font-size:22px;}
+  .tabs{display:flex;gap:6px;padding:0 12px 10px;overflow-x:auto;}
   .tab{padding:10px 14px;min-height:40px;border-radius:10px;font-size:12.5px;font-weight:800;white-space:nowrap;cursor:pointer;background:var(--panel2);color:var(--sub);border:none;}
   .tab.active{background:var(--amber);color:#1A1300;}
   .topbar{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--border);z-index:20;padding-top:env(safe-area-inset-top);}
@@ -69,6 +71,9 @@
   .modal-box.wide{max-width:820px;}
   .modal-head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 18px;}
   .modal-body{padding:18px;}
+  .divider{height:1px;background:var(--border);margin:8px 0;}
+  table.plain{width:100%;border-collapse:collapse;}
+  table.plain td, table.plain th{padding:6px 4px;text-align:right;}
   .bar-outer{background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
   .bar-inner{background:var(--amber);height:100%;}
   a{color:inherit;}
@@ -82,22 +87,6 @@
   .conn-offline{background:var(--red);box-shadow:0 0 6px var(--red);}
   .conn-syncing{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:pulse 1s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-  /* ====== Toast (تنبيه الحفظ) ====== */
-  .toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;}
-  .toast{padding:14px 22px;border-radius:14px;font-size:14px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s ease-out;display:flex;align-items:center;gap:10px;min-width:200px;justify-content:center;pointer-events:auto;}
-  .toast-success{background:var(--green);color:#0A2A1C;}
-  .toast-error{background:var(--red);color:#fff;}
-  .toast-info{background:var(--blue);color:#fff;}
-  .toast-icon{font-size:20px;}
-  @keyframes toastIn{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes toastOut{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-20px);}}
-  .toast.hide{animation:toastOut .3s ease-in forwards;}
-  /* ====== Success Message (تحت زر الحفظ) ====== */
-  .success-msg{background:rgba(63,207,142,.15);border:1.5px solid var(--green);color:var(--green);padding:12px 16px;border-radius:12px;text-align:center;font-weight:800;font-size:14px;margin:8px 0;animation:successPulse .5s ease-out;}
-  .error-msg{background:rgba(239,91,91,.15);border:1.5px solid var(--red);color:var(--red);padding:12px 16px;border-radius:12px;text-align:center;font-weight:800;font-size:14px;margin:8px 0;}
-  @keyframes successPulse{0%{transform:scale(.9);opacity:0;}50%{transform:scale(1.02);}100%{transform:scale(1);opacity:1;}}
-  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-left:6px;}
-  @keyframes spin{to{transform:rotate(360deg);}}
   @media (max-width:520px){
     .modal-overlay{padding:0;align-items:flex-end;}
     .modal-box{max-width:100%;max-height:94vh;border-radius:18px 18px 0 0;}
@@ -105,7 +94,7 @@
   @media print{
     .no-print{display:none !important;}
     body{background:#fff;color:#000;}
-    .panel,.panel2,.card-btn{background:#fff !important;border-color:#ccc !important;color:#000 !important;}
+    .panel,.panel2,.card,.card-btn{background:#fff !important;border-color:#ccc !important;color:#000 !important;}
   }
 </style>
 
@@ -148,7 +137,7 @@
       if(window.updateConnIndicator) window.updateConnIndicator();
       if(val && window.onCloudDataReceived){
         window.onCloudDataReceived(val);
-      } else if(!val && window.onCloudDataReceived){
+      } else if(!val){
         window.onCloudDataReceived({buses:[],supplyRequests:[],stockAdditions:[],settings:{managerEmail:""},meta:{deletedFaultIds:{}}}, true);
       }
     }, (err)=>{
@@ -165,11 +154,10 @@
 </head>
 <body>
 <div id="app"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#98A2AE;font-family:Tahoma;">⏳ جاري تحميل النظام...</div></div>
-<div class="toast-container" id="toast-container"></div>
 
 <script>
 /* =====================================================================
-   ورشة الأتوبيسات — النسخة النهائية
+   ورشة الأتوبيسات — نسخة موحدة (Firebase + IndexedDB)
    ===================================================================== */
 
 /* Service Worker */
@@ -235,21 +223,6 @@ function getDeviceName(){ try{ return localStorage.getItem(DEVICE_KEY) || ""; }c
 function setDeviceName(v){ try{ localStorage.setItem(DEVICE_KEY, (v||"").trim()); }catch(e){} }
 const fmtMoney = (n) => (Number(n)||0).toLocaleString("ar-EG",{maximumFractionDigits:2}) + " ج.م";
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-
-/* ===================== Toast (تنبيهات) ===================== */
-function showToast(msg, type="success", duration=3500){
-  const container = document.getElementById("toast-container");
-  if(!container) return;
-  const toast = document.createElement("div");
-  toast.className = "toast toast-" + (type==="success"?"success":type==="error"?"error":"info");
-  const icons = {success:"✅", error:"❌", info:"ℹ️"};
-  toast.innerHTML = `<span class="toast-icon">${icons[type]||"ℹ️"}</span><span>${esc(msg)}</span>`;
-  container.appendChild(toast);
-  setTimeout(()=>{
-    toast.classList.add("hide");
-    setTimeout(()=>toast.remove(), 300);
-  }, duration);
-}
 
 function compressImage(file, maxWidth=640, quality=0.55){
   return new Promise((resolve,reject)=>{
@@ -324,11 +297,8 @@ function normalizeDB(db){
 let DB = normalizeDB({});
 let lastCloudJson = "";
 let cloudReceivedOnce = false;
-let lastSaveTime = 0;
-let isSubmitting = false;
-let pendingSaveLock = false;
 
-/* IndexedDB */
+/* IndexedDB helpers */
 const IDB_SUPPORTED = ('indexedDB' in window);
 function mainIdbOpen(){
   return new Promise((resolve,reject)=>{
@@ -375,25 +345,17 @@ async function loadLocalDB(){
   return normalizeDB({});
 }
 
-/* حفظ: Firebase + IndexedDB + Toast */
+/* حفظ: Firebase + IndexedDB */
 let dbWriteQueue = Promise.resolve();
-function saveDB(db, options){
-  options = options || {};
+function saveDB(db){
   DB = normalizeDB(db);
-  lastSaveTime = Date.now();
-  pendingSaveLock = true;
-  setTimeout(()=>{ pendingSaveLock = false; }, 3000);
-
+  // حفظ محلي
   if(IDB_SUPPORTED){ dbWriteQueue = dbWriteQueue.then(()=>idbPutDB(DB)).catch(e=>console.error("IDB save failed", e)); }
   else { try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){} }
-
+  // حفظ سحابي
   if(window.cloudSave){
     lastCloudJson = JSON.stringify(DB);
     window.cloudSave(DB);
-  }
-
-  if(options.showToast){
-    showToast(options.toastMsg || "تم الحفظ بنجاح", "success", 3000);
   }
   return true;
 }
@@ -401,16 +363,9 @@ function saveDB(db, options){
 /* استقبال بيانات من Firebase */
 window.onCloudDataReceived = function(remoteData, isFirstEmpty){
   if(!remoteData) return;
-  // ⚠️ لو في حفظ محلي قريب — نتجاهل التحديث من السحابة (منع إعادة الرسم)
-  if(pendingSaveLock || (Date.now() - lastSaveTime < 3000)){
-    lastCloudJson = JSON.stringify(remoteData);
-    DB = normalizeDB(remoteData);
-    if(IDB_SUPPORTED) idbPutDB(DB).catch(()=>{});
-    return;
-  }
   const remoteJson = JSON.stringify(remoteData);
-  if(remoteJson === lastCloudJson) return;
-
+  if(remoteJson === lastCloudJson) return; // تجاهل لو نفس البيانات
+  // لو أول مرة والمحلي فيه بيانات — نعمل merge يدوي بسيط (الأحدث يفوز)
   if(!cloudReceivedOnce){
     cloudReceivedOnce = true;
     const hasRemote = remoteData.buses && remoteData.buses.length > 0;
@@ -424,6 +379,7 @@ window.onCloudDataReceived = function(remoteData, isFirstEmpty){
       return;
     }
     if(!hasRemote && hasLocal){
+      // ارفع المحلي للسحابة
       lastCloudJson = JSON.stringify(DB);
       if(window.cloudSave) window.cloudSave(DB);
       render();
@@ -435,7 +391,7 @@ window.onCloudDataReceived = function(remoteData, isFirstEmpty){
   if(IDB_SUPPORTED) idbPutDB(DB).catch(()=>{});
   render();
 };
-  /* ===================== حالة عامة ===================== */
+/* ===================== حالة عامة ===================== */
 let currentUser = null;
 let route = "login";
 let draftBus = null;
@@ -493,7 +449,7 @@ function emptyFault(){
 }
 function resetDraftBus(){
   draftBus = {busNumber:"",driverName:"",driverCode:"",inspectorName:(currentUser && currentUser.inspector) ? currentUser.label : "",
-    inspectionDate:localDateTimeInputValue(), faults:[emptyFault()], msg:"", submitting:false};
+    inspectionDate:localDateTimeInputValue(), faults:[emptyFault()], msg:""};
 }
 function doLogin(){
   const u = document.getElementById("li-user").value.trim();
@@ -636,56 +592,27 @@ function nbRemovePhoto(i, j){ syncDraftBusFromDOM(); draftBus.faults[i].photosBe
 function renderNewBusOnly(){ const el = document.getElementById("newbus-root"); if(el) el.outerHTML = buildNewBus(); }
 
 function submitNewBus(){
-  // ⚠️ منع التسجيل المتكرر
-  if(isSubmitting || (draftBus && draftBus.submitting)){
-    showToast("جاري الحفظ... استنى شوية", "info", 2000);
-    return;
-  }
   syncDraftBusFromDOM();
   const d = draftBus;
-  if(!d.busNumber.trim() || !d.driverName.trim() || !d.inspectorName.trim()){
-    d.msg="err:يرجى إكمال بيانات السائق والأتوبيس والمفتش";
-    renderNewBusOnly();
-    showToast("يرجى إكمال البيانات", "error", 2500);
-    return;
-  }
-  if(d.faults.some(f=>!f.description.trim())){
-    d.msg="err:يرجى كتابة وصف لكل مهمة إصلاح مضافة";
-    renderNewBusOnly();
-    showToast("يرجى كتابة وصف المهام", "error", 2500);
-    return;
-  }
-  isSubmitting = true;
-  d.submitting = true;
+  if(!d.busNumber.trim() || !d.driverName.trim() || !d.inspectorName.trim()){ d.msg="err:يرجى إكمال بيانات السائق والأتوبيس والمفتش"; renderNewBusOnly(); return; }
+  if(d.faults.some(f=>!f.description.trim())){ d.msg="err:يرجى كتابة وصف لكل مهمة إصلاح مضافة"; renderNewBusOnly(); return; }
+  const receivedAt = new Date(d.inspectionDate).toISOString();
+  const autoApprove = currentUser.role==="admin";
+  const stamp = nowISO();
+  const bus = {
+    id: uid("bus"), busNumber:d.busNumber.trim(), driverName:d.driverName.trim(), driverCode:d.driverCode.trim(),
+    inspectionDate: receivedAt, inspectorName: d.inspectorName.trim(),
+    faults: d.faults.map(f=>({...f, receivedDate: receivedAt, createdBy: currentUser.label,
+      status: autoApprove ? FAULT_STATUS.PENDING : FAULT_STATUS.PENDING_APPROVAL,
+      approvedBy: autoApprove ? currentUser.label : "", approvedAt: autoApprove ? nowISO() : null, updatedAt: stamp})),
+    delivery: null, updatedAt: stamp,
+  };
+  DB.buses.push(bus);
+  if(!saveDB(DB)) return;
+  if(!autoApprove) notifyManagerNewBusPending(bus);
+  resetDraftBus();
+  draftBus.msg = autoApprove ? "ok:تم تسجيل الأتوبيس بنجاح ✓" : "ok:تم إرسال الأتوبيس ومهام الإصلاح للمدير، بانتظار الاعتماد ✓";
   renderNewBusOnly();
-
-  setTimeout(()=>{
-    try{
-      const receivedAt = new Date(d.inspectionDate).toISOString();
-      const autoApprove = currentUser.role==="admin";
-      const stamp = nowISO();
-      const bus = {
-        id: uid("bus"), busNumber:d.busNumber.trim(), driverName:d.driverName.trim(), driverCode:d.driverCode.trim(),
-        inspectionDate: receivedAt, inspectorName: d.inspectorName.trim(),
-        faults: d.faults.map(f=>({...f, receivedDate: receivedAt, createdBy: currentUser.label,
-          status: autoApprove ? FAULT_STATUS.PENDING : FAULT_STATUS.PENDING_APPROVAL,
-          approvedBy: autoApprove ? currentUser.label : "", approvedAt: autoApprove ? nowISO() : null, updatedAt: stamp})),
-        delivery: null, updatedAt: stamp,
-      };
-      DB.buses.push(bus);
-      saveDB(DB);
-      if(!autoApprove) notifyManagerNewBusPending(bus);
-      resetDraftBus();
-      draftBus.msg = autoApprove ? "ok:تم تسجيل الأتوبيس بنجاح ✓" : "ok:تم إرسال الأتوبيس بانتظار الاعتماد ✓";
-      showToast(autoApprove ? "تم حفظ الأتوبيس بنجاح" : "تم إرسال الأتوبيس بانتظار الاعتماد", "success", 4000);
-      renderNewBusOnly();
-    }catch(e){
-      console.error(e);
-      showToast("حدث خطأ أثناء الحفظ", "error", 3000);
-    }finally{
-      setTimeout(()=>{ isSubmitting = false; if(draftBus) draftBus.submitting = false; }, 1500);
-    }
-  }, 100);
 }
 function notifyManagerNewBusPending(bus){
   try{
@@ -698,10 +625,7 @@ function notifyManagerNewBusPending(bus){
 function buildNewBus(){
   if(!draftBus) resetDraftBus();
   const d = draftBus;
-  const isSub = d.submitting || isSubmitting;
-  const msgHtml = d.msg ? (d.msg.startsWith("ok")
-    ? `<div class="success-msg">✅ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`
-    : `<div class="error-msg">❌ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`) : "";
+  const msgHtml = d.msg ? `<p class="txt-sm bold" style="text-align:center;color:${d.msg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(d.msg.split(":").slice(1).join(":"))}</p>` : "";
   return `
   <div id="newbus-root" class="max-w-lg col gap4">
     <div class="panel rounded-lg p4" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -716,11 +640,11 @@ function buildNewBus(){
     </div>
     <div class="col gap3">
       <div class="row between center"><div class="txt-sm bold">مهام الإصلاح المسجّلة</div>
-        <button class="btn btn-subtle" onclick="nbAddFault()" ${isSub?'disabled':''}>+ إضافة مهمة</button></div>
+        <button class="btn btn-subtle" onclick="nbAddFault()">+ إضافة مهمة إصلاح</button></div>
       ${d.faults.map((f,i)=>`
         <div class="panel rounded-lg p4 col gap2">
           <div class="row between"><span class="txt-xs bold amber">مهمة إصلاح رقم ${i+1}</span>
-            ${d.faults.length>1?`<button class="btn" style="background:none;color:var(--red);padding:0;" onclick="nbRemoveFault(${i})" ${isSub?'disabled':''}>🗑</button>`:""}</div>
+            ${d.faults.length>1?`<button class="btn" style="background:none;color:var(--red);padding:0;" onclick="nbRemoveFault(${i})">🗑</button>`:""}</div>
           <label class="field"><span>وصف مهمة الإصلاح / الملاحظات</span><textarea id="nb-f-desc-${i}" class="input" rows="2">${esc(f.description)}</textarea></label>
           <label class="field"><span>القسم المطلوب</span>
             <select id="nb-f-dept-${i}" class="input">${DEPARTMENTS.map(dp=>`<option value="${dp}" ${f.department===dp?"selected":""}>${dp}</option>`).join("")}</select>
@@ -736,9 +660,7 @@ function buildNewBus(){
         </div>`).join("")}
     </div>
     ${msgHtml}
-    <button class="btn btn-primary" style="padding:13px;font-size:15px;" onclick="submitNewBus()" ${isSub?'disabled':''}>
-      ${isSub ? '<span class="spinner"></span> جاري الحفظ...' : '✓ حفظ وتسجيل الأتوبيس'}
-    </button>
+    <button class="btn btn-primary" style="padding:13px;" onclick="submitNewBus()">✓ حفظ وتسجيل الأتوبيس</button>
     ${buildMyRecentSubmissions()}
   </div>`;
 }
@@ -780,7 +702,7 @@ function buildBusesListResults(q){
 }
 function blFilter(v){ const el=document.getElementById("bl-results"); if(el) el.innerHTML = buildBusesListResults(v); }
 
-/* ===================== تفاصيل الأتوبيس + حذف ===================== */
+/* ===================== تفاصيل الأتوبيس ===================== */
 function buildBusDetailModal(busId){
   const bus = DB.buses.find(b=>b.id===busId);
   if(!bus) return "";
@@ -788,10 +710,9 @@ function buildBusDetailModal(busId){
   <div class="modal-overlay no-print" onclick="if(event.target===this){openBusId=null;render();}">
     <div class="modal-box wide">
       <div class="modal-head"><div class="bold">أتوبيس ${esc(bus.busNumber)}</div>
-        <div class="row gap2 center no-print wrap">
+        <div class="row gap2 center no-print">
           <button class="btn btn-subtle" onclick="printDetailedReport([DB.buses.find(b=>b.id==='${bus.id}')])">🖨 PDF</button>
           <button class="btn btn-subtle" onclick='downloadWordReport([DB.buses.find(b=>b.id==="${bus.id}")],"تقرير-أتوبيس-${esc(bus.busNumber)}.doc")'>📄 Word</button>
-          ${currentUser.role==="admin"?`<button class="btn btn-danger" onclick="adminDeleteBus('${bus.id}')">🗑 حذف الأتوبيس</button>`:""}
           <button class="icon-btn" onclick="openBusId=null;render();">✕</button>
         </div>
       </div>
@@ -819,7 +740,7 @@ function buildBusDetailModal(busId){
               ${currentUser.role==="admin" && f.status!==FAULT_STATUS.PENDING_APPROVAL?`
               <div class="row gap2" style="margin-top:6px;">
                 <button class="btn btn-subtle" onclick="openBusId=null; openTask={busId:'${bus.id}',faultId:'${f.id}'}; workDraft=null; render();">✏ تعديل</button>
-                <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${f.id}')">🗑 حذف المهمة</button>
+                <button class="btn btn-danger" onclick="adminDeleteFault('${bus.id}','${f.id}')">🗑 حذف</button>
               </div>`:""}
             </div>`).join("")}
         </div>
@@ -830,20 +751,6 @@ function buildBusDetailModal(busId){
       </div>
     </div>
   </div>`;
-}
-
-/* ===================== حذف الأتوبيس (admin) ===================== */
-function adminDeleteBus(busId){
-  if(currentUser.role!=="admin") return;
-  const bus = DB.buses.find(b=>b.id===busId);
-  if(!bus) return;
-  if(!confirm(`هل أنت متأكد من حذف الأتوبيس "${bus.busNumber}" نهائيًا؟\n\nسيتم حذف كل مهام الإصلاح والصور والتكاليف المرتبطة به.\nلا يمكن التراجع.`)) return;
-  DB.buses = DB.buses.filter(b=>b.id!==busId);
-  (bus.faults||[]).forEach(f=>{ DB.meta.deletedFaultIds[f.id] = nowISO(); });
-  saveDB(DB);
-  if(openBusId===busId) openBusId=null;
-  showToast("تم حذف الأتوبيس بنجاح", "success", 3000);
-  render();
 }
 
 /* ===================== الاعتماد (admin) ===================== */
@@ -896,8 +803,7 @@ function approveFault(busId, faultId){
   f.status = FAULT_STATUS.PENDING;
   f.approvedBy = currentUser.label; f.approvedAt = nowISO();
   touch(f); touch(bus);
-  saveDB(DB);
-  showToast("تم اعتماد المهمة", "success", 2500);
+  if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
 function rejectFault(busId, faultId){
@@ -906,8 +812,7 @@ function rejectFault(busId, faultId){
   bus.faults = bus.faults.filter(f=>f.id!==faultId);
   DB.meta.deletedFaultIds[faultId] = nowISO();
   touch(bus);
-  saveDB(DB);
-  showToast("تم حذف المهمة", "info", 2500);
+  if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
 function adminDeleteFault(busId, faultId){
@@ -918,9 +823,8 @@ function adminDeleteFault(busId, faultId){
   bus.faults = bus.faults.filter(x=>x.id!==faultId);
   DB.meta.deletedFaultIds[faultId] = nowISO();
   touch(bus);
-  saveDB(DB);
+  if(!saveDB(DB)) return;
   if(openTask && openTask.faultId===faultId){ openTask=null; workDraft=null; }
-  showToast("تم حذف المهمة", "success", 2500);
   render();
 }
 function addApprovedFaultToBus(busId){
@@ -934,12 +838,10 @@ function addApprovedFaultToBus(busId){
   f.receivedDate = nowISO(); f.status = FAULT_STATUS.PENDING;
   f.createdBy = currentUser.label; f.approvedBy = currentUser.label; f.approvedAt = nowISO();
   touch(f); bus.faults.push(f); touch(bus);
-  saveDB(DB);
-  showToast("تمت إضافة المهمة", "success", 2500);
+  if(!saveDB(DB)) return;
   renderApprovalsOnly();
 }
-
-/* ===================== طابور الأقسام ===================== */
+  /* ===================== طابور الأقسام ===================== */
 function buildQueue(dept){
   return `<div id="queue-root">${buildQueueInner(dept)}</div>`;
 }
@@ -1056,8 +958,8 @@ function requestMaterialFromStore(i){
   touch(req);
   DB.supplyRequests.push(req);
   row.name = finalName; row.customName = ""; row.supplyRequestId = req.id;
-  saveDB(DB);
-  showToast("تم إرسال طلب الخامة", "success", 2500);
+  if(!saveDB(DB)) return;
+  notifyManagerNewRequest(req);
   wSaveProgress(false);
 }
 
@@ -1066,9 +968,7 @@ function wStart(){
   const f = bus.faults.find(x=>x.id===openTask.faultId);
   f.startDate = nowISO(); f.status = FAULT_STATUS.IN_PROGRESS;
   touch(f); touch(bus);
-  saveDB(DB, {showToast:true, toastMsg:"تم بدء العمل"});
-  workDraft = JSON.parse(JSON.stringify(f));
-  renderWorkModalOnly();
+  saveDB(DB); workDraft = JSON.parse(JSON.stringify(f)); renderWorkModalOnly();
 }
 function wSaveProgress(finish){
   syncWorkDraftFromDOM();
@@ -1081,7 +981,7 @@ function wSaveProgress(finish){
   touch(updated);
   bus.faults[idx] = updated;
   touch(bus);
-  saveDB(DB, {showToast:true, toastMsg: finish ? "تم إنهاء العمل بنجاح" : "تم حفظ التقدم"});
+  if(!saveDB(DB)) return;
   workDraft = JSON.parse(JSON.stringify(updated));
   renderWorkModalOnly();
 }
@@ -1192,7 +1092,7 @@ function buildDelivery(){
       <div id="dv-info"></div>
       <label class="field"><span>اسم المسؤول المعتمِد</span><input id="dv-approver" class="input"/></label>
       <label class="row center gap2 txt-sm"><input type="checkbox" id="dv-confirm"/> أؤكد اعتماد التسليم</label>
-      ${deliveryMsg?`<div class="${deliveryMsg.startsWith("ok")?"success-msg":"error-msg"}">${deliveryMsg.startsWith("ok")?"✅":"❌"} ${esc(deliveryMsg.split(":").slice(1).join(":"))}</div>`:""}
+      ${deliveryMsg?`<p class="txt-sm bold" style="text-align:center;color:${deliveryMsg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(deliveryMsg.split(":").slice(1).join(":"))}</p>`:""}
       <button class="btn btn-primary" onclick="submitDelivery()">🚚 اعتماد التسليم</button>
     </div>`}
   </div>`;
@@ -1208,17 +1108,11 @@ function submitDelivery(){
   const approver = document.getElementById("dv-approver").value.trim();
   const confirmed = document.getElementById("dv-confirm").checked;
   const bus = DB.buses.find(b=>b.id===id);
-  if(!bus || !approver || !confirmed){ 
-    deliveryMsg="err:يرجى إكمال البيانات والتأكيد";
-    render();
-    showToast("يرجى إكمال البيانات", "error", 2500);
-    return; 
-  }
+  if(!bus || !approver || !confirmed){ deliveryMsg="err:يرجى إكمال البيانات والتأكيد"; render(); return; }
   bus.delivery = {driverName:bus.driverName, busNumber:bus.busNumber, deliveryDate: nowISO(), departmentName: busDepts(bus).join("، "), approvedBy:approver, signed:true};
   touch(bus);
-  saveDB(DB);
-  deliveryMsg = "ok:تم اعتماد التسليم بنجاح ✓";
-  showToast("تم اعتماد التسليم بنجاح", "success", 3500);
+  if(!saveDB(DB)) return;
+  deliveryMsg = "ok:تم اعتماد التسليم ✓";
   render();
 }
 
@@ -1244,14 +1138,11 @@ function srItemChanged(v){ syncSupplyDraftFromDOM(); supplyDraft.itemName = v; r
 function renderSupplyReqOnly(){ const el = document.getElementById("supplyreq-root"); if(el) el.outerHTML = buildSupplyRequestForm(); }
 
 function submitSupplyRequest(){
-  if(isSubmitting) { showToast("جاري الإرسال...", "info", 2000); return; }
   syncSupplyDraftFromDOM();
   const d = supplyDraft;
   const finalName = d.itemName==="أخرى" ? d.customItem.trim() : d.itemName;
-  if(!finalName){ d.msg = "err:يرجى تحديد اسم الخامة"; renderSupplyReqOnly(); showToast("يرجى تحديد الخامة", "error", 2500); return; }
-  if(!d.qty || Number(d.qty)<=0){ d.msg = "err:يرجى إدخال كمية صحيحة"; renderSupplyReqOnly(); showToast("كمية غير صحيحة", "error", 2500); return; }
-  isSubmitting = true;
-  setTimeout(()=>{ isSubmitting = false; }, 2000);
+  if(!finalName){ d.msg = "err:يرجى تحديد اسم الخامة"; renderSupplyReqOnly(); return; }
+  if(!d.qty || Number(d.qty)<=0){ d.msg = "err:يرجى إدخال كمية صحيحة"; renderSupplyReqOnly(); return; }
   const bus = d.busId ? DB.buses.find(b=>b.id===d.busId) : null;
   const req = {
     id:uid("supply"), itemName:finalName, qty:Number(d.qty), unit:(d.unit||"").trim(),
@@ -1262,11 +1153,10 @@ function submitSupplyRequest(){
   };
   touch(req);
   DB.supplyRequests.push(req);
-  saveDB(DB);
+  if(!saveDB(DB)) return;
   notifyManagerNewRequest(req);
   resetSupplyDraft();
-  supplyDraft.msg = "ok:تم إرسال الطلب بنجاح ✓";
-  showToast("تم إرسال الطلب بنجاح", "success", 3500);
+  supplyDraft.msg = "ok:تم إرسال الطلب ✓";
   renderSupplyReqOnly();
 }
 function notifyManagerNewRequest(req){
@@ -1311,9 +1201,7 @@ function buildSupplyRequestForm(){
   const activeTasks = [];
   DB.buses.forEach(b=>b.faults.forEach(f=>{ if(f.department===currentUser.role && f.status!==FAULT_STATUS.DONE && f.status!==FAULT_STATUS.PENDING_APPROVAL) activeTasks.push({bus:b, fault:f}); }));
   const myRequests = DB.supplyRequests.filter(r=>r.department===currentUser.role).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-  const msgHtml = d.msg ? (d.msg.startsWith("ok")
-    ? `<div class="success-msg">✅ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`
-    : `<div class="error-msg">❌ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`) : "";
+  const msgHtml = d.msg ? `<p class="txt-sm bold" style="text-align:center;color:${d.msg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(d.msg.split(":").slice(1).join(":"))}</p>` : "";
   return `
   <div id="supplyreq-root" class="max-w-lg col gap4">
     <div class="panel rounded-lg p4 col gap3">
@@ -1337,7 +1225,7 @@ function buildSupplyRequestForm(){
       </label>`:""}
       <label class="field"><span>ملاحظات</span><textarea id="sr-notes" class="input" rows="2">${esc(d.notes)}</textarea></label>
       ${msgHtml}
-      <button class="btn btn-primary" onclick="submitSupplyRequest()" ${isSubmitting?'disabled':''}>${isSubmitting?'<span class="spinner"></span> جاري الإرسال...':'📨 إرسال الطلب'}</button>
+      <button class="btn btn-primary" onclick="submitSupplyRequest()">📨 إرسال الطلب</button>
     </div>
     <div class="col gap2">
       <div class="txt-sm bold">طلباتي السابقة</div>
@@ -1389,27 +1277,23 @@ function buildSuppliesAdmin(){
   </div>`;
 }
 function renderSuppliesOnly(){ const el = document.getElementById("supplies-root"); if(el) el.outerHTML = buildSuppliesAdmin(); }
-function setManagerEmail(v){ DB.settings.managerEmail = v.trim(); saveDB(DB, {showToast:true, toastMsg:"تم حفظ البريد"}); }
+function setManagerEmail(v){ DB.settings.managerEmail = v.trim(); saveDB(DB); }
 function approveSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   r.status = SUPPLY_STATUS.APPROVED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label;
-  touch(r); saveDB(DB);
-  showToast("تمت الموافقة", "success", 2500);
-  renderSuppliesOnly();
+  touch(r); saveDB(DB); renderSuppliesOnly();
 }
 function rejectSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   const reason = prompt("سبب الرفض (اختياري):", "") || "";
   r.status = SUPPLY_STATUS.REJECTED; r.decidedAt = nowISO(); r.decidedBy = currentUser.label; r.rejectReason = reason.trim();
-  touch(r); saveDB(DB);
-  showToast("تم الرفض", "info", 2500);
-  renderSuppliesOnly();
+  touch(r); saveDB(DB); renderSuppliesOnly();
 }
 function enableDesktopNotifications(){
-  if(!("Notification" in window)){ showToast("المتصفح لا يدعم التنبيهات", "error", 3000); return; }
+  if(!("Notification" in window)){ alert("المتصفح لا يدعم التنبيهات"); return; }
   Notification.requestPermission().then(p=>{
-    if(p==="granted") showToast("تم تفعيل التنبيهات", "success", 3000);
-    else showToast("لم يتم منح الإذن", "error", 3000);
+    if(p==="granted") alert("تم التفعيل ✓");
+    else alert("لم يتم منح الإذن");
   });
 }
 function mailtoForRequest(r){
@@ -1424,7 +1308,7 @@ function mailtoForRequest(r){
 }
 function emailManagerAboutRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
-  if(!DB.settings.managerEmail){ showToast("لم يتم تسجيل بريد المدير", "error", 3000); return; }
+  if(!DB.settings.managerEmail){ alert("لم يتم تسجيل بريد المدير"); return; }
   window.location.href = mailtoForRequest(r);
 }
 
@@ -1453,11 +1337,9 @@ function dispenseSupplyRequest(id){
   const r = DB.supplyRequests.find(x=>x.id===id); if(!r) return;
   const nameInput = document.getElementById("cust-recipient-"+id);
   const recipient = nameInput ? nameInput.value.trim() : "";
-  if(!recipient){ showToast("يرجى كتابة اسم المستلم", "error", 3000); return; }
+  if(!recipient){ alert("يرجى كتابة اسم المستلم"); return; }
   r.status = SUPPLY_STATUS.DISPENSED; r.dispensedAt = nowISO(); r.dispensedBy = currentUser.label; r.recipientName = recipient;
-  touch(r); saveDB(DB);
-  showToast("تم تسجيل الصرف", "success", 2500);
-  renderCustodianOnly();
+  touch(r); saveDB(DB); renderCustodianOnly();
 }
 
 /* ===================== مستندات التوريد ===================== */
@@ -1486,25 +1368,21 @@ function stockItemChanged(i, v){ syncStockDraftFromDOM(); stockDraft.items[i].na
 function renderStockFormOnly(){ const el = document.getElementById("stockform-root"); if(el) el.outerHTML = buildStockAdditionForm(); }
 
 function submitStockAddition(){
-  if(isSubmitting) { showToast("جاري الإرسال...", "info", 2000); return; }
   syncStockDraftFromDOM();
   const d = stockDraft;
   const items = d.items.map(it=>({
     name: it.name==="أخرى" ? (it.customItem||"").trim() : it.name,
     qty: Number(it.qty)||0, unit:(it.unit||"").trim()
   })).filter(it=>it.name && it.qty>0);
-  if(items.length===0){ d.msg = "err:يرجى إدخال خامة واحدة على الأقل"; renderStockFormOnly(); showToast("يرجى إدخال خامة", "error", 2500); return; }
-  isSubmitting = true;
-  setTimeout(()=>{ isSubmitting = false; }, 2000);
+  if(items.length===0){ d.msg = "err:يرجى إدخال خامة واحدة على الأقل"; renderStockFormOnly(); return; }
   const doc = {id:uid("stockin"), date: d.date||todayDateStr(), items, notes:(d.notes||"").trim(),
     status:SUPPLY_STATUS.PENDING, createdBy:currentUser.label, createdAt:nowISO(),
     decidedAt:null, decidedBy:"", rejectReason:""};
   touch(doc);
   DB.stockAdditions.push(doc);
-  saveDB(DB);
+  if(!saveDB(DB)) return;
   resetStockDraft();
-  stockDraft.msg = "ok:تم إرسال المستند بنجاح ✓";
-  showToast("تم إرسال المستند بنجاح", "success", 3500);
+  stockDraft.msg = "ok:تم إرسال المستند ✓";
   renderStockFormOnly();
 }
 
@@ -1529,9 +1407,7 @@ function buildStockAdditionForm(){
   if(!stockDraft) resetStockDraft();
   const d = stockDraft;
   const myDocs = [...DB.stockAdditions].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,15);
-  const msgHtml = d.msg ? (d.msg.startsWith("ok")
-    ? `<div class="success-msg">✅ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`
-    : `<div class="error-msg">❌ ${esc(d.msg.split(":").slice(1).join(":"))}</div>`) : "";
+  const msgHtml = d.msg ? `<p class="txt-sm bold" style="text-align:center;color:${d.msg.startsWith("ok")?"var(--green)":"var(--red)"}">${esc(d.msg.split(":").slice(1).join(":"))}</p>` : "";
   return `
   <div id="stockform-root" class="col gap3">
     <div class="panel rounded-lg p4 col gap3">
@@ -1557,7 +1433,7 @@ function buildStockAdditionForm(){
       <button class="btn btn-ghost" onclick="addStockItemRow()">+ إضافة خامة</button>
       <label class="field"><span>ملاحظات</span><textarea id="sd-notes" class="input" rows="2">${esc(d.notes)}</textarea></label>
       ${msgHtml}
-      <button class="btn btn-primary" onclick="submitStockAddition()" ${isSubmitting?'disabled':''}>${isSubmitting?'<span class="spinner"></span> جاري الإرسال...':'📨 إرسال المستند'}</button>
+      <button class="btn btn-primary" onclick="submitStockAddition()">📨 إرسال المستند</button>
     </div>
     <div class="col gap2">
       <div class="txt-sm bold">آخر المستندات</div>
@@ -1569,17 +1445,13 @@ function buildStockAdditionForm(){
 function approveStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   s.status = SUPPLY_STATUS.APPROVED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label;
-  touch(s); saveDB(DB);
-  showToast("تم اعتماد المستند", "success", 2500);
-  renderSuppliesOnly();
+  touch(s); saveDB(DB); renderSuppliesOnly();
 }
 function rejectStockAddition(id){
   const s = DB.stockAdditions.find(x=>x.id===id); if(!s) return;
   const reason = prompt("سبب الرفض (اختياري):", "") || "";
   s.status = SUPPLY_STATUS.REJECTED; s.decidedAt = nowISO(); s.decidedBy = currentUser.label; s.rejectReason = reason.trim();
-  touch(s); saveDB(DB);
-  showToast("تم رفض المستند", "info", 2500);
-  renderSuppliesOnly();
+  touch(s); saveDB(DB); renderSuppliesOnly();
 }
 
 /* ===================== رصيد المخزن ===================== */
@@ -1633,7 +1505,7 @@ function exportDispenseLogCSV(){
     .forEach(r=>rows.push([fmtDateTime(r.dispensedAt), r.itemName, r.qty, r.unit||"", r.busNumber||"—", r.department, r.recipientName, r.dispensedBy, r.notes||""]));
   exportCSV(rows, "سجل-صرف-الخامات.csv");
 }
- /* ===================== التقارير ===================== */
+  /* ===================== التقارير ===================== */
 function exportCSV(rows, filename){
   const csv = rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
@@ -1644,7 +1516,6 @@ function exportBackup(){
   const blob = new Blob([JSON.stringify(DB,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href=url; a.download="نسخة-احتياطية-"+new Date().toISOString().slice(0,10)+".json"; a.click(); URL.revokeObjectURL(url);
-  showToast("تم تصدير النسخة الاحتياطية", "success", 3000);
 }
 function importBackupFile(input){
   const file = input.files[0]; if(!file) return;
@@ -1655,17 +1526,16 @@ function importBackupFile(input){
       if(!parsed.buses) throw new Error("bad");
       if(!confirm("⚠ استعادة كاملة — ستستبدل كل البيانات الحالية. متابعة؟")) return;
       DB = normalizeDB(parsed); saveDB(DB); render();
-      showToast("تم استعادة البيانات", "success", 3500);
-    }catch(e){ showToast("ملف غير صالح", "error", 3000); }
+    }catch(e){ alert("ملف غير صالح"); }
   };
   reader.readAsText(file);
 }
 
-/* ===================== المزامنة اليدوية ===================== */
+/* ===================== المزامنة اليدوية (تصدير/استيراد JSON) ===================== */
 function defaultDeviceName(){ return (currentUser && currentUser.inspector) ? currentUser.label : ""; }
 function exportSyncFile(){
   const dn = getDeviceName() || defaultDeviceName();
-  if(!dn){ showToast("اكتب اسم الجهاز أولاً", "error", 3000); return; }
+  if(!dn){ alert("اكتب اسم الجهاز أولاً"); return; }
   const payload = {__syncMeta:{deviceName:dn, exportedAt:nowISO(), app:"ورشة الأتوبيسات", syncVersion:1},
     buses: DB.buses, supplyRequests: DB.supplyRequests, stockAdditions: DB.stockAdditions, settings: DB.settings, meta: DB.meta};
   const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
@@ -1673,7 +1543,6 @@ function exportSyncFile(){
   const stamp = new Date().toISOString().slice(0,16).replace("T","_").replace(":","-");
   const safeName = dn.replace(/[\\/:*?"<>|]/g,"-");
   const a = document.createElement("a"); a.href=url; a.download=`مزامنة-${safeName}-${stamp}.json`; a.click(); URL.revokeObjectURL(url);
-  showToast("تم تصدير ملف المزامنة", "success", 3000);
 }
 function mergeArraysById(localArr, incomingArr){
   const map = new Map((localArr||[]).map(x=>[x.id,x]));
@@ -1745,10 +1614,10 @@ function mergeSyncFile(input){
       if(!confirm(`دمج تحديثات من:\n« ${fromName} »\nتاريخ التصدير: ${exportedAt}\n\nدمج آمن (لا يمسح شغلك) — متابعة؟`)) return;
       const {merged, summary} = mergeDB(DB, parsed);
       DB = merged;
-      saveDB(DB);
-      showToast(`تم الدمج: +${summary.busesAdded} أتوبيس، +${summary.faultsAdded} مهمة`, "success", 4000);
+      if(!saveDB(DB)) return;
+      alert(`تم الدمج ✓\nأتوبيسات جديدة: ${summary.busesAdded} — محدثة: ${summary.busesUpdated}\nمهام جديدة: ${summary.faultsAdded} — محدثة: ${summary.faultsUpdated}\nطلبات جديدة: ${summary.supplyAdded} — محدثة: ${summary.supplyUpdated}\nمستندات جديدة: ${summary.stockAdded} — محدثة: ${summary.stockUpdated}`);
       render();
-    }catch(e){ showToast("ملف مزامنة غير صالح", "error", 3000); }
+    }catch(e){ alert("ملف مزامنة غير صالح"); }
   };
   reader.readAsText(file);
   input.value = "";
@@ -1758,7 +1627,6 @@ function mergeSyncFile(input){
 function saveDeviceNameFromInput(){
   const el = document.getElementById("dev-name-input");
   if(el) setDeviceName(el.value);
-  showToast("تم حفظ اسم الجهاز", "success", 2000);
   if(route==="reports") renderReportsOnly(); else render();
 }
 function buildSyncPanel(){
@@ -1817,14 +1685,14 @@ function buildStorageUsageBar(usage, quota, pct){
   return `<div class="col gap1">
     <div class="row between wrap gap1 txt-xs sub"><span>مساحة التخزين المستخدمة</span><span class="bold" style="color:${color}">${mb(usage)} م.ب من ${mb(quota)} م.ب (${pct}%)</span></div>
     <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${color};"></div></div>
-    ${pct>80?`<p class="txt-xs" style="color:var(--red);">⚠ المساحة قربت تخلص — اعمل نسخة احتياطية وامسح الصور القديمة</p>`:""}
+    ${pct>80?`<p class="txt-xs" style="color:var(--red);">⚠ المساحة قربت تخلص</p>`:""}
   </div>`;
 }
 function purgeOldDeliveredPhotos(){
   const daysStr = prompt("مسح صور الأتوبيسات المُسلَّمة من أكتر من كام يوم؟", "14");
   if(daysStr===null) return;
   const days = Number(daysStr);
-  if(!days || days<=0){ showToast("رقم أيام غير صحيح", "error", 2500); return; }
+  if(!days || days<=0){ alert("رقم أيام غير صحيح"); return; }
   const cutoff = Date.now() - days*24*60*60*1000;
   let photoCount = 0, busCount = 0;
   DB.buses.forEach(b=>{
@@ -1838,10 +1706,10 @@ function purgeOldDeliveredPhotos(){
     });
     if(touchedBus){ touch(b); busCount++; }
   });
-  if(photoCount===0){ showToast("لا توجد صور لتفريغها", "info", 2500); return; }
+  if(photoCount===0){ alert("لا توجد صور لتفريغها"); return; }
   if(!confirm(`سيتم حذف ${photoCount} صورة من ${busCount} أتوبيس. متابعة؟`)) return;
-  saveDB(DB);
-  showToast(`تم تفريغ ${photoCount} صورة`, "success", 3500);
+  if(!saveDB(DB)) return;
+  alert("تم التفريغ ✓");
   render();
 }
 
@@ -2011,16 +1879,16 @@ function buildDetailedReportBody(buses){
 }
 function printDetailedReport(buses){
   buses = (buses||[]).filter(Boolean);
-  if(buses.length===0){ showToast("لا توجد أتوبيسات لعرض تقرير عنها", "info", 2500); return; }
+  if(buses.length===0){ alert("لا توجد أتوبيسات لعرض تقرير عنها"); return; }
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير تفصيلي</title><style>${DETAILED_REPORT_CSS}</style></head><body>${buildDetailedReportBody(buses)}</body></html>`;
   const win = window.open("", "_blank");
-  if(!win){ showToast("يرجى السماح بفتح النوافذ المنبثقة", "error", 3000); return; }
+  if(!win){ alert("يرجى السماح بفتح النوافذ المنبثقة"); return; }
   win.document.write(html); win.document.close();
   win.onload = () => { win.focus(); win.print(); };
 }
 function downloadWordReport(buses, filename){
   buses = (buses||[]).filter(Boolean);
-  if(buses.length===0){ showToast("لا توجد أتوبيسات لعرض تقرير عنها", "info", 2500); return; }
+  if(buses.length===0){ alert("لا توجد أتوبيسات لعرض تقرير عنها"); return; }
   const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
   <head><meta charset="UTF-8"/><title>تقرير تفصيلي</title>
   <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
@@ -2031,7 +1899,6 @@ function downloadWordReport(buses, filename){
   const a = document.createElement("a");
   a.href = url; a.download = filename || ("تقرير-تفصيلي-"+new Date().toISOString().slice(0,10)+".doc");
   a.click(); URL.revokeObjectURL(url);
-  showToast("تم تصدير التقرير", "success", 3000);
 }
 function reportRows(){
   const rows = [["رقم الأتوبيس","السائق","الحالة","الأقسام","عدد الأعمال","المكتمل","إجمالي التكلفة","تاريخ التفتيش"]];
@@ -2044,36 +1911,17 @@ function reportRows(){
 
 /* ===================== بدء التشغيل ===================== */
 async function bootApp(){
-  // 1. تأكد إن DB جاهز فوراً
-  DB = normalizeDB(DB);
-  
-  // 2. استرجع الجلسة واعرض فوراً
-  try { restoreLoginSession(); } catch(e) { console.warn("session restore failed", e); }
-  
-  try {
-    render();
-  } catch(e) {
-    console.error("First render failed", e);
-    document.getElementById("app").innerHTML = '<div style="padding:20px;color:#EF5B5B;font-family:Tahoma;">حدث خطأ في التحميل:<br>' + String(e) + '</div>';
-  }
-  
-  // 3. حمّل البيانات المحلية في الخلفية
+  // 1. حمّل البيانات المحلية أولاً (سرعة + شغل بدون نت)
   try{
-    const localDB = await loadLocalDB();
-    if(localDB && localDB.buses && localDB.buses.length > 0){
-      if(!cloudReceivedOnce){
-        DB = localDB;
-        render();
-      }
-    }
-  }catch(e){ console.warn("Local load failed", e); }
+    DB = await loadLocalDB();
+  }catch(e){ DB = normalizeDB({}); }
+  // 2. حاول ترمي المحلي للسحابة لو السحابة فاضية (يتم التعامل معه في onCloudDataReceived)
+  // 3. استرجع الجلسة واعرض
+  restoreLoginSession();
+  render();
 }
 
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", bootApp);
-} else {
-  bootApp();
-}
+bootApp();
 </script>
 </body>
 </html>
